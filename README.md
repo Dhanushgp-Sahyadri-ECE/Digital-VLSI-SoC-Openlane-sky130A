@@ -1,132 +1,296 @@
-Physical Design using OpenLANE & Sky130 PDK
-📘 Project Introduction
-This repository showcases the complete physical design flow using the OpenLANE toolchain with the Sky130 open-source PDK. Executed as part of Digital VLSI SoC Design and Planning Workshop by VLSI System Design Corporation, the project offers a hands-on experience in chip design, starting from RTL to the final GDSII.
+# Physical Design of a RISC-V Core using OpenLANE & Sky130
 
-OpenLANE is a powerful, open-source RTL-to-GDSII automation framework that integrates tools like Yosys, OpenROAD, Magic, Netgen, Fault, OpenPhySyn, and more — all working cohesively to produce clean, manufacturable layouts without manual intervention. The flow is optimized specifically for the Skywater 130nm PDK, enabling the development of hard macros and full chips efficiently.
+### 🎯 Project Introduction
 
-📁 Repository Structure
-DAY 1
+This repository details the end-to-end physical design (PD) implementation of the picorv32a RISC-V core, taking it from RTL description to a final GDSII layout. The entire flow is executed using the open-source *OpenLANE* automation framework with the *Skywater 130nm (Sky130) PDK*. This project serves as a practical guide to modern VLSI chip implementation, as demonstrated in the VSD Corp workshop.
 
-Theory
-Introduction to RISC-V
-Simplified RTL to GDSII Flow
-OpenLane Flow
-Lab
-Synthesis
-Estimation of Flip Flop Ratio
-Slack
-DAY 2
+OpenLANE integrates a powerful suite of EDA tools (Yosys, OpenROAD, Magic, etc.) to streamline the creation of clean, manufacturable layouts with minimal manual intervention.
 
-Theory
-Floorplan
-Placement
-Lab
-Floorplan
-Placement
-Characterization
-Estimation of area of the die
-Day 3
+---
 
-Theory
-Designing a Library Cell
-steps for simulation in ngspice
-SPICE Switching Threshold and Propagation Delay
-16-Mask CMOS Process
-Lab
-Spice extraction of inverter in magic
-Post-Layout Spice simulation (ngspice)
-Slew rate and Propagation delay
-Fix Tech File DRC via Magic
-DAY 4
+### 🏗 Project Structure
 
-Theory
-Delay Table
-Timing Analysis (using Ideal Clocks)
-Clock Tree Synthesis Stage
-Lab
-DAY 5
+- [*Day 1: Fundamentals of Open-Source VLSI Design*](#-day-1-fundamentals-of-open-source-vlsi-design)
+  - Theory: IC Physical Hierarchy, RISC-V ISA, Digital Design-to-Layout Flow
+  - Lab: Logic Synthesis, Cell Ratio Analysis, Resolving Timing Violations
+- [*Day 2: Core Layout - Floorplan and Placement*](#-day-2-core-layout---floorplan-and-placement)
+  - Theory: Floorplanning Concepts, Cell Placement Techniques
+  - Lab: Die & Core Definition, Standard Cell Placement, Library Characterization
+- [*Day 3: Standard Cell Design and SPICE Characterization*](#-day-3-standard-cell-design-and-spice-characterization)
+  - Theory: Custom Cell Design, SPICE Simulation, CMOS Fabrication Process
+  - Lab: Parasitic Extraction, Post-Layout Simulation, DRC Fixes
+- [*Day 4: Clock Network Synthesis and Timing Closure*](#-day-4-clock-network-synthesis-and-timing-closure)
+  - Theory: Timing Models, STA, Clock Tree Synthesis (CTS)
+  - Lab: Incorporating Custom Cells, Pre-CTS vs. Post-CTS Analysis
+- [*Day 5: Final Routing, Verification, and Tapeout*](#-day-5-final-routing-verification-and-tapeout)
+  - Lab: Power Grid Generation, Detailed Routing, Final GDSII Output
 
-Lab
-DAY-1
-Inception-of-Open-source-EDA,OpenLane-and-Sky130-PDK
-we explore the fundamental physical elements of an integrated circuit (IC) :
+---
 
-Package, Chip, Pads, Core, Die, and IPs :
+### 🚀 Day 1: Fundamentals of Open-Source VLSI Design
 
-The QFN-48 (Quad Flat No-lead) package is a surface-mounted IC package with 48 pins used to connect the chip to the outside world.
+This day establishes the foundational knowledge for the physical design process.
 
-Inside the package is the die, the actual silicon chip where transistors are fabricated.
+#### Theory
 
-The core is the functional part of the die where the logic (e.g., processor, memory) is implemented.
+*IC Physical Hierarchy*
+A modern Integrated Circuit consists of several distinct physical parts:
+* *Package:* The external casing (e.g., QFN-48) that protects the silicon die and connects it to the circuit board.
+* *Die:* The silicon slice where all the transistors and circuits are fabricated.
+* *Core:* The central region of the die that contains the main logic.
+* *Pads:* Metal interfaces on the periphery of the die for I/O signals.
+* *Foundry IPs:* Complex analog or mixed-signal blocks (e.g., PLLs, ADCs) provided by the foundry.
+* *Macros:* Reusable digital logic blocks (e.g., processors, memory controllers) placed within the core.
 
-Surrounding the core are pads, which act as electrical contact points for interfacing signals from the core to the pins on the package.
+<img width="848" height="853" alt="182751377-2810d388-21b0-4df1-b1d4-c72176d80d28" src="https://github.com/user-attachments/assets/d6c9f443-dc08-4587-972a-c46c9b927dad" />
 
-The chip as a whole includes the die, package, and connections.
+*Introduction to RISC-V*
+RISC-V is an open-standard Instruction Set Architecture (ISA) featuring:
+* *Open-Source:* No licensing fees, enabling broad innovation and adoption.
+* *Modularity:* A base integer instruction set with optional extensions (e.g., 'M' for multiplication, 'F' for floating-point).
+* *Scalability:* Suitable for everything from microcontrollers to high-performance computing.
 
-The core of the chip will contain two types of blocks:
+*The Digital Design-to-Layout Flow*
+This is the standard workflow for converting a design concept into a manufacturable layout.
+1.  *Synthesis:* Translates high-level RTL (Verilog) into a low-level gate netlist using a standard cell library.
+2.  *Floorplanning:* Defines the chip's physical dimensions, allocates space for the core and macros, and plans the power grid.
+3.  *Placement:* Assigns an exact coordinate to every standard cell within the core area to optimize performance and routability.
+4.  *Clock Tree Synthesis (CTS):* Inserts buffers and constructs a balanced clock network to ensure synchronized operation.
+5.  *Routing:* Creates the metal wire connections between all cell pins as defined by the netlist.
+6.  *Sign-off Verification:* A final series of checks to guarantee the design is correct and manufacturable:
+    * *DRC (Design Rule Check):* Validates compliance with foundry manufacturing rules.
+    * *LVS (Layout Versus Schematic):* Ensures the layout accurately reflects the synthesized netlist.
+    * *STA (Static Timing Analysis):* Confirms all timing paths meet performance constraints.
 
-Foundry IP Blocks (e.g. ADC, DAC, PLL, and SRAM) = blocks which requires some amount of intelligent techniques to build which can only be designed by foundries.
+The process culminates in a *GDSII* file, which is the final design database sent for fabrication.
 
-Macro blocks (e.g. RISC-V SOC and SPI) = pure digital logic blocks compared to IP's which might require some analog parts.
+<img width="848" height="=500" alt="182759711-6b9352ec-7652-4589-af31-53a409eb2830" src="https://github.com/user-attachments/assets/f3cdde11-73e1-496e-9486-3d02f62ff65d"/>
 
-182751377-2810d388-21b0-4df1-b1d4-c72176d80d28
-Introduction to RISC-V
-RISC-V stands for Reduced Instruction Set Computing – Version 5 and is designed with simplicity and modularity in mind.
+Each design uses a config.tcl file to specify its unique settings within OpenLANE.
+<img width="848" height="126" alt="Screenshot 2025-07-24 142941" src="https://github.com/user-attachments/assets/a61e7285-ca8d-45ef-adc8-2522e4e1103e" />
 
-Unlike proprietary ISAs like ARM or x86, RISC-V is open, meaning anyone can implement or modify it freely.
+#### Lab Work
 
-The architecture consists of a base integer set and optional extensions (e.g., for multiplication, atomic operations, floating point).
+*Logic Synthesis*
+The lab starts by invoking OpenLANE and preparing the picorv32a design.
+* *Invoking OpenLANE:*
+    <img width="848" height="250" alt="Screenshot 2025-07-24 120932" src="https://github.com/user-attachments/assets/42c4e8a2-9a39-4ac9-9a62-2be252e3fb0f" />
+* *Preparing the Design:* The prep command sets up the run directory.
+    <img width="848" height="370" alt="Screenshot 2025-07-24 121111" src="https://github.com/user-attachments/assets/d9540d85-6019-4535-8d9a-02e1ee24831c" />
+* *Running Synthesis:* run_synthesis creates the gate-level netlist.
+    <img width="848" height="107" alt="Screenshot 2025-07-24 132349" src="https://github.com/user-attachments/assets/a0e2bb41-4784-4395-8c2a-7c3d3f53156a" />
+    <img width="848" height="130" alt="Screenshot 2025-07-24 133023" src="https://github.com/user-attachments/assets/78de66bd-0091-43ba-9f40-47aad4db611c" />
 
-RISC-V is ideal for education, research, and industrial design due to its transparency and scalability.
+*Cell Ratio Analysis*
+<img width="848" height="600" alt="Screenshot 2025-07-24 123628" src="https://github.com/user-attachments/assets/30b7898a-9a64-4365-9e04-f5027549eead" />
+The ratio of sequential to combinatorial logic is a key design metric.
+* Flip-Flops: 1613
+* Total Cells: 14876
+* *Flip-Flop Ratio:* $1613 / 14876 \approx 10.84\%$
 
-Simplified RTL to GDSII Flow
-Synthesis
+*Resolving Timing Violations*
+*Slack* is the timing margin in a circuit. Negative slack indicates a timing violation that must be fixed.
+* *Before:* The design initially failed timing with negative slack.
+    <img width="848" height="255" alt="Screenshot 2025-07-24 123323" src="https://github.com/user-attachments/assets/9fe5c38e-a80a-4875-9cfc-4d0b81cf11c3" />
+* *After:* Relaxing the clock period to 55.00 ns resolved the violation.
+    <img width="848" height="255" alt="Screenshot 2025-07-24 131231" src="https://github.com/user-attachments/assets/ae72bbe7-8a79-40b1-80b4-6af999df93fb" />
 
-The Register Transfer Level (RTL) code, typically written in Verilog or VHDL, is translated into a gate-level netlist. This netlist is composed of logic gates and components from a pre-defined standard cell library. These cells have fixed sizes and electrical characteristics, provided by the Process Design Kit (PDK). During synthesis, optimizations such as constant propagation, logic simplification, and technology mapping are performed to ensure an area-efficient and logically equivalent design.
+---
 
-Floor Planning and Power Planning
+### 🛠 Day 2: Core Layout - Floorplan and Placement
 
-This step involves defining the physical layout of the chip, including the die area, core area, margins, and reserved regions for IP blocks or macros. Floorplanning also includes decisions on I/O pin placement and defining power domains. In power planning, a Power Distribution Network (PDN) is created to deliver clean power across the chip. The power rails and straps are usually placed on upper metal layers since they are thicker and have lower resistance, which helps reduce IR drop and ensures reliable power delivery.
+This day focuses on creating the physical canvas for the design and placing the logic cells.
 
-Placement
+#### Theory
 
-Placement determines the exact physical location of standard cells within the defined floorplan. This process occurs in two phases:
+*Floorplanning Concepts*
+* *Core Utilization:* The percentage of the core area filled by standard cells (typically 50-60% to leave room for routing).
+    <img width="848" height="367" alt="Screenshot 2025-07-24 223107" src="https://github.com/user-attachments/assets/92da74da-1a22-40b1-9b2e-09e5d11c03c7" />
+* *Macros/IP Blocks:* Large, pre-designed blocks whose placement is fixed early.
+    <img width="848" height="367" alt="Screenshot 2025-07-24 223127" src="https://github.com/user-attachments/assets/675fe99d-0725-4d39-ab18-e5d19f703447" />
+* *Decoupling Capacitors:* On-chip capacitors that stabilize the power supply during heavy switching activity.
+    <img width="848" height="603" alt="Untitled" src="https://github.com/user-attachments/assets/c04cf8d8-f3de-49f7-bda0-91d5892b8fe5" />
+* *Power Distribution Network (PDN):* A grid of metal layers that delivers power (VDD) and ground (VSS) evenly across the chip.
+    <img width="848" height="371" alt="Screenshot 2025-07-24 222913" src="https://github.com/user-attachments/assets/4c943466-20cc-4e48-96ca-6c0bcdba10ab" />
+* *I/O and Pin Placement:* Arranging input/output pins around the core boundary.
+    <img width="848" height="355" alt="Screenshot 2025-07-24 222958" src="https://github.com/user-attachments/assets/aa9bb6ac-70b1-4a1e-a388-22b122db452f" />
+    <img width="848" height="347" alt="Screenshot 2025-07-24 223040" src="https://github.com/user-attachments/assets/0f4ab5a9-2147-4725-8bc1-e3412078ac7b" />
 
-Global Placement: Estimates optimal positions to reduce wirelength and congestion, but may not obey all design rules.
+*Cell Placement Techniques*
+Placement is done in two stages:
+* *Global Placement:* Finds an optimal but potentially illegal position for cells to minimize wire length.
+* *Detailed Placement:* Snaps cells to legal sites on the placement grid, ensuring no overlaps.
 
-Detailed Placement: Adjusts the global result to ensure legal placement while minimizing additional wirelength or timing penalties.
+#### Lab Work
 
-Clock Tree Synthesis (CTS)
+*Visualizing the Floorplan with Magic*
+<img width="848" height="37" alt="Screenshot 2025-07-24 134349" src="https://github.com/user-attachments/assets/40cb2aba-9fc6-43e8-a196-1216bfb0aa48" />
+<img width="848" height="732" alt="Screenshot 2025-07-24 133352" src="https://github.com/user-attachments/assets/b7d0b4e7-4386-4b35-90fe-e37f92b2afa1" />
+<img width="848" height="907" alt="Screenshot 2025-07-24 133602" src="https://github.com/user-attachments/assets/c546ebab-bfb0-4631-9967-62575694aa4a" />
+<img width="848" height="668" alt="Screenshot 2025-07-24 133654" src="https://github.com/user-attachments/assets/770e1f71-f57d-44e4-b710-31d5bbab4fac" />
 
-A clock tree is built to distribute the clock signal to all sequential elements (flip-flops) in the design. Since all flip-flops must receive the clock signal simultaneously to avoid timing violations like skew and jitter, structures such as H-trees or X-trees are used. CTS also buffers the clock signal and ensures balanced timing paths across different regions.
+*Visualizing the Placement with Magic*
+<img width="848" height="42" alt="Screenshot 2025-07-24 134409" src="https://github.com/user-attachments/assets/35373e18-0d02-4666-9629-b5e8f4adcdc3" />
+<img width="848" height="728" alt="Screenshot 2025-07-24 134153" src="https://github.com/user-attachments/assets/10d3ff16-2da9-4f14-a763-c834a3e04b00" />
+<img width="848" height="545" alt="Screenshot 2025-07-24 134259" src="https://github.com/user-attachments/assets/dc7bd71a-8625-4cd5-abad-92c53610c52d" />
 
-Routing
+*Library Characterization Process*
+<img width="848" height="603" alt="dadda" src="https://github.com/user-attachments/assets/a288d9cd-e1cc-4df1-bdf8-d5c77d97a7c4" />
 
-Routing connects the logically associated pins (nets) across the placed cells using horizontal and vertical metal layers defined in the PDK.
+*Die Area Calculation*
+From the .def file, the die area is determined.
+<img width="848" height="107" alt="Screenshot 2025-07-24 132349" src="https://github.com/user-attachments/assets/472471ea-1a17-4a3b-8d65-77c46b1f1ffb" />
+<img width="848" height="592" alt="Screenshot 2025-07-24 132311" src="https://github.com/user-attachments/assets/2cdf5fe9-7670-4eb5-a1dd-8c9a8d98e253" />
+* *Calculation:* $(660.685 \mu m) \times (671.405 \mu m) \approx 443,587 \mu m^2$.
 
-Global Routing identifies approximate routing paths.
+---
 
-Detailed Routing determines exact wiring with specific tracks, vias, and metal layers.
+### 🎨 Day 3: Standard Cell Design and SPICE Characterization
 
-The Sky130 PDK provides six metal layers, each with defined widths, spacings, pitches, and via rules to guide the router for legal and manufacturable connections.
+This day explores the micro-level task of designing and simulating a fundamental CMOS logic gate.
 
-Verification Before Sign-off
+#### Theory
 
-Before the final design is ready for fabrication, several verification steps are required:
+*Custom Cell Design Flow*
+<img width="848" height="602" alt="Screenshot 2025-07-26 125422" src="https://github.com/user-attachments/assets/f647f49c-e4af-4a20-9eaf-dfa6f4d9f203" />
 
-DRC (Design Rule Check): Ensures the physical layout complies with all foundry-imposed rules like minimum spacing, width, enclosure, etc.
+*SPICE Simulation*
+<img width="848" height="656" alt="Screenshot 2025-07-26 125706" src="https://github.com/user-attachments/assets/4e34ffd1-4c48-4ab0-b0fd-cba749e4df5a" />
+<img width="848" height="648" alt="Screenshot 2025-07-26 125749" src="https://github.com/user-attachments/assets/a225d17d-3e87-4ea4-a6d9-4e5caf95988f" />
 
-LVS (Layout Versus Schematic): Compares the layout netlist against the schematic/netlist from the synthesis phase to confirm logical equivalence.
+*Timing Metrics: Switching Threshold & Propagation Delay*
+* *Switching Threshold:* The input voltage at which the output voltage is equal.
+    <img width="848" height="541" alt="Screenshot 2025-07-26 135748" src="https://github.com/user-attachments/assets/d3abddf5-db6a-448f-952e-b885b8568468" />
+* *Propagation Delay:* Measured via transient analysis.
+    <img width="200" height="216" alt="Screenshot 2025-07-26 135659" src="https://github.com/user-attachments/assets/7ab2839f-d176-49b6-b1b5-30f36c04c5e2" />
+    <img width="848" height="53" alt="Screenshot 2025-07-26 135650" src="https://github.com/user-attachments/assets/957730e3-5601-4bbc-a6d9-46503961e79a" />
+    <img width="848" height="889" alt="187056370-18949899-a158-4307-96d9-d5c06bbeed66" src="https://github.com/user-attachments/assets/754e0757-5b33-494c-95ae-2a287599dc6d" />
 
-Timing Analysis: Static Timing Analysis (STA) verifies that all setup and hold time constraints are satisfied across all paths and corners (process, voltage, temperature). The final Result is GDSII file format.
+*CMOS Fabrication Process (16-Mask)*
+A high-level view of the manufacturing steps for a CMOS inverter.
+<img width="848" height="400" alt="Screenshot 2025-07-26 174207" src="https://github.com/user-attachments/assets/fa5ac8b5-675a-4151-a230-072c64d6137e" />
 
-RTL to GDSII flow : Openlane
+#### Lab Work
 
-OpenLane Flow
-182759711-6b9352ec-7652-4589-af31-53a409eb2830
-OpenLane is an automated RTL to GDSII flow that utilizes various components such as OpenROAD, Yosys, Magic, Netgen, and custom scripts for design exploration and optimization.
+*Parasitic Extraction from a Magic Layout*
+<img width="848" height="52" alt="Screenshot 2025-07-26 174607" src="https://github.com/user-attachments/assets/b185ee77-7baf-4d9d-a14e-8f3ce328d139" />
+<img width="848" height="168" alt="Screenshot 2025-07-30 125827" src="https://github.com/user-attachments/assets/73cde73d-b8ce-40b6-b346-73d279bccbc6" />
+<img width="848" height="57" alt="Screenshot 2025-07-26 174719" src="https://github.com/user-attachments/assets/144921cd-5e35-4c8b-9918-89460b008333" />
+<img width="848" height="260" alt="Screenshot 2025-07-26 174858" src="https://github.com/user-attachments/assets/76fb85c3-e007-4032-9925-8800b238c3e0" />
+<img width="848" height="721" alt="Screenshot 2025-07-26 172928" src="https://github.com/user-attachments/assets/9d946e89-dce5-46dd-be89-e8f93b824935" />
 
-The flow performs all ASIC implementation steps from RTL down to GDSII. OpenLane Interactive Mode Commands include a variety of functions such as setting the current netlist, running logic verification, setting the current def file, preparing lef files, preparing a liberty file, generating an exclude list file, sourcing configurations, specifying a path to save config_in.tcl, preparing a run, specifying a design folder, overwriting an existing run, specifying a path to save the run, specifying a name for a specific run, creating a tcl configuration file for a design, setting the verilog source code file, specifying the design's configuration file, setting a verbose output level, generating a padframe, saving views of a given run, changing save paths for various file types, labeling pins of a macro def, generating a verilog netlist from a def file, creating an obstruction, setting tracks on a layer, extracting core dimensions, running SPEF extraction and Static Timing Analysis, running antenna checks, saving environment variables, running OpenSTA timing analysis, checking for unmapped cells, checking for assign statements, and checking if the LEF was properly read.
+*Post-Layout Simulation with ngspice*
+<img width="848" height="875" alt="Screenshot 2025-07-26 181256" src="https://github.com/user-attachments/assets/6b11a52d-e7dd-4626-882e-e8d24f331810" />
+<img width="848" height="487" alt="Screenshot 2025-07-26 181156" src="https://github.com/user-attachments/assets/fa7d1c08-da3b-4118-83f7-42ff78559790" />
 
-Antenna Rules Violation : long wire segments will act as antennna and will accumulate charges, this might damage the connected transistor gates. Solution is to either use bridging or antenna diode insertion to leak away the charges.
-Inside a specific design folder contains a config.tcl which overrides the default settings on OpenLANE.
+*Measuring Slew and Delay*
+* *Rise Transition:*
+    <img width="848" height="78" alt="Screenshot 2025-07-26 213748" src="https://github.com/user-attachments/assets/02b52e5c-fff7-4283-8258-e47d702eabac" />
+* *Fall Transition:*
+    <img width="848" height="77" alt="Screenshot 2025-07-26 214030" src="https://github.com/user-attachments/assets/b9a32895-a01c-4740-9f63-48f32acf497e" />
+* *Rise Delay:*
+    <img width="848" height="72" alt="Screenshot 2025-07-26 214545" src="https://github.com/user-attachments/assets/158e2eaf-4f69-4fbd-82bb-5b2c5814962d" />
+
+*Correcting a Tech File DRC*
+<img width="848" height="63" alt="Screenshot 2025-07-26 232040" src="https://github.com/user-attachments/assets/102cbe43-321e-451d-8e0e-82f87013bd23" />
+<img width="848" height="472" alt="Screenshot 2025-07-26 221828" src="https://github.com/user-attachments/assets/48b3df34-f795-4d5b-9c47-09462b66b709" />
+<img width="848" height="532" alt="Screenshot 2025-07-26 223639" src="https://github.com/user-attachments/assets/d9732a2e-a38e-49a6-9374-ab0a0183dd06" />
+<img width="400" height="137" alt="Screenshot 2025-07-26 232204" src="https://github.com/user-attachments/assets/d39c2834-fb34-45d8-8f2f-93e4ffb25187" />
+<img width="400" height="193" alt="Screenshot 2025-07-26 223705" src="https://github.com/user-attachments/assets/db2ff8f4-d82f-454b-bf15-88568d65e412" />
+<img width="400" height="151" alt="Screenshot 2025-07-26 223718" src="https://github.com/user-attachments/assets/e36aa647-54e9-460a-bd63-e89fcb35c495" />
+<img width="400" height="87" alt="Screenshot 2025-07-26 223505" src="https://github.com/user-attachments/assets/a6ec936c-e03e-440c-9729-59cd987577ab" />
+
+---
+
+### ⏱ Day 4: Clock Network Synthesis and Timing Closure
+
+This day focuses on building the clock distribution network and ensuring the design meets its timing goals.
+
+#### Theory
+
+*Timing Models and Delay Tables*
+<img width="1166" height="635" alt="Screenshot 2025-07-30 223725" src="https://github.com/user-attachments/assets/15e6a690-8f95-41c5-8027-a0e04d836538" />
+
+*Clock Tree Synthesis (CTS) Goals*
+<img width="676" height="457" alt="Screenshot 2025-07-30 224543" src="https://github.com/user-attachments/assets/765ab7fb-20ea-40a2-a724-032cb203e7ad" />
+
+#### Lab Work
+
+*Layout Tracks and Grids*
+<img width="848" height="496" alt="Screenshot 2025-07-30 000535" src="https://github.com/user-attachments/assets/5b0f8ca6-d1d9-4205-afaa-3d4e0c39272e" />
+<img width="848" height="490" alt="Screenshot 2025-07-30 000549" src="https://github.com/user-attachments/assets/bbf1a286-b4cd-44bf-a572-249b2c87fe0e" />
+<img width="848" height="417" alt="Screenshot 2025-07-30 113158" src="https://github.com/user-attachments/assets/b6e985f8-a29b-477c-806a-c1da7bda2ab1" />
+<img width="848" height="848" alt="Screenshot 2025-07-28 121258" src="https://github.com/user-attachments/assets/cc10810e-5776-436d-a05d-44b4b84273b9" />
+<img width="848" height="608" alt="Screenshot 2025-07-27 011229" src="https://github.com/user-attachments/assets/5c5bc380-b802-41c4-b1a4-0f610579fcf9" />
+
+*Incorporating a Custom Standard Cell*
+<img width="848" height="146" alt="Screenshot 2025-07-27 015605" src="https://github.com/user-attachments/assets/ae0c769f-27b8-4342-84ce-398afc2b430d" />
+<img width="848" height="145" alt="Screenshot 2025-07-30 130455" src="https://github.com/user-attachments/assets/a75274fc-1505-4900-a4a6-2f0cd839281c" />
+<img width="848" height="292" alt="Screenshot 2025-07-27 112459" src="https://github.com/user-attachments/assets/cd356fb9-25aa-4665-b87b-1e17dc3b5659" />
+<img width="848" height="267" alt="Screenshot 2025-07-30 113419" src="https://github.com/user-attachments/assets/5022ddbe-00f2-4f35-babc-350cc474992e" />
+<img width="848" height="582" alt="Screenshot 2025-07-30 004441" src="https://github.com/user-attachments/assets/db94ac64-9f76-400c-83bc-161d92eb155d" />
+<img width="848" height="902" alt="Screenshot 2025-07-30 131638" src="https://github.com/user-attachments/assets/516d4ac8-968c-4285-9784-cfb003c45fed" />
+<img width="1697" height="892" alt="Screenshot 2025-07-30 132028" src="https://github.com/user-attachments/assets/647d1896-6a85-48f4-92e6-a4985aa4c76c" />
+
+*Synthesis Optimization*
+<img width="848" height="481" alt="Screenshot 2025-07-28 130724" src="https://github.com/user-attachments/assets/bd6f4d92-62b0-427f-badd-2cc9968b03a4" />
+<img width="848" height="387" alt="Screenshot 2025-07-30 115338" src="https://github.com/user-attachments/assets/7a3485fb-6d89-40cc-84f6-17800e613640" />
+<img width="848" height="897" alt="Screenshot 2025-07-28 222817" src="https://github.com/user-attachments/assets/84f09731-1370-4d3c-b9c8-409273ba04f7" />
+<img width="848" height="497" alt="Screenshot 2025-07-28 134549" src="https://github.com/user-attachments/assets/c044a361-b554-41d6-a30f-f4d218789c12" />
+<img width="848" height="921" alt="Screenshot 2025-07-28 223452" src="https://github.com/user-attachments/assets/354f77d9-484b-4fc9-82db-f98ba83e714f" />
+<img width="848" height="905" alt="Screenshot 2025-07-28 225050" src="https://github.com/user-attachments/assets/8fd2aa54-a14f-4a08-9c63-2e0da79a209a" />
+
+*CTS and Post-CTS Analysis*
+<img width="1847" height="883" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/9c38515d-dcd4-43cb-93d8-db4e18e8d09e" />
+<img width="1847" height="883" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/2e5e7292-a69f-4646-9e8a-3f35f27d626a" />
+<img width="1832" height="245" alt="Screenshot 2025-07-30 124909" src="https://github.com/user-attachments/assets/cd4713c1-b98b-4fcd-b906-30b1b344b2a8" />
+<img width="1438" height="740" alt="Screenshot 2025-07-30 125132" src="https://github.com/user-attachments/assets/db8a2104-c693-4c8c-ae57-b77b073c9139" />
+<img width="1441" height="738" alt="Screenshot 2025-07-29 010515" src="https://github.com/user-attachments/assets/3d0ac85a-1153-45a3-aff5-97221c0888b9" />
+<img width="1505" height="782" alt="Screenshot 2025-07-29 010553" src="https://github.com/user-attachments/assets/9461a51c-4038-4e8f-ad4a-088adf6a8967" />
+<img width="1297" height="457" alt="Screenshot 2025-07-29 181220" src="https://github.com/user-attachments/assets/1cb63874-68e5-4fba-a84f-a27dcec9eb0b" />
+<img width="1847" height="272" alt="Screenshot 2025-07-29 181247" src="https://github.com/user-attachments/assets/7573ef66-934f-45e7-8193-366e2c699ff4" />
+<img width="1257" height="480" alt="Screenshot 2025-07-29 181627" src="https://github.com/user-attachments/assets/4123c22c-b05e-457c-a5f0-804acaad7fc8" />
+<img width="1841" height="620" alt="Screenshot 2025-07-29 181808" src="https://github.com/user-attachments/assets/7d40a9ad-701b-4e1f-8449-5c060cdf403c" />
+<img width="1847" height="908" alt="Screenshot 2025-07-29 181832" src="https://github.com/user-attachments/assets/2f8ed163-c532-491e-906b-cad0c448fc34" />
+<img width="1830" height="878" alt="Screenshot 2025-07-29 181916" src="https://github.com/user-attachments/assets/1e754cbe-4c97-479c-bcce-e9beb3ce3154" />
+<img width="1852" height="907" alt="Screenshot 2025-07-29 182340" src="https://github.com/user-attachments/assets/e4d7ed6d-9bc7-4d7a-975e-4a574397192c" />
+<img width="1518" height="655" alt="Screenshot 2025-07-30 222049" src="https://github.com/user-attachments/assets/3a085a95-c2b1-493c-8b05-0ca7bbe19744" />
+<img width="1848" height="916" alt="Screenshot 2025-07-29 183123" src="https://github.com/user-attachments/assets/d270f744-9aec-439a-b537-3e5fb5a04a9a" />
+<img width="1337" height="740" alt="Screenshot 2025-07-30 220638" src="https://github.com/user-attachments/assets/f89677be-3220-45dc-8868-1bde680a25e1" />
+<img width="1852" height="945" alt="Screenshot 2025-07-29 183410" src="https://github.com/user-attachments/assets/5b3b741f-fc9e-40d4-9720-3ff3ae5cf279" />
+
+---
+
+### 🏁 Day 5: Final Routing, Verification, and Tapeout
+
+The final day connects the entire design and prepares it for manufacturing.
+
+#### Lab Work
+
+*Power Grid Generation (PDN)*
+<img width="1845" height="898" alt="Screenshot 2025-07-29 183947" src="https://github.com/user-attachments/assets/0623ac22-6ec7-4ea5-9456-c67c1de65eab" />
+<img width="1852" height="906" alt="Screenshot 2025-07-29 184133" src="https://github.com/user-attachments/assets/944c3ba9-5daf-4bd0-8a20-96b47da0d1c6" />
+<img width="1810" height="887" alt="Screenshot 2025-07-29 184343" src="https://github.com/user-attachments/assets/23dc0a50-d4e4-4b89-8e1e-8fab538c8f30" />
+<img width="1847" height="902" alt="Screenshot 2025-07-29 184540" src="https://github.com/user-attachments/assets/f948ace1-3fe0-488a-9a35-a88aca1b8b36" />
+<img width="1856" height="898" alt="Screenshot 2025-07-29 184602" src="https://github.com/user-attachments/assets/4d1d219b-4dc2-4011-9633-dfe76a9c24be" />
+<img width="1606" height="818" alt="Screenshot 2025-07-29 184757" src="https://github.com/user-attachments/assets/d80cc966-ecb3-4adc-a923-1d4fe65a3cc7" />
+<img width="1502" height="838" alt="Screenshot 2025-07-29 184832" src="https://github.com/user-attachments/assets/8979c7cf-74b0-4249-b8ba-4a8595d78207" />
+<img width="1506" height="837" alt="Screenshot 2025-07-29 184913" src="https://github.com/user-attachments/assets/9ecab539-9937-4f37-92ee-a3ead193d6ac" />
+
+*Detailed Routing with TritonRoute*
+<img width="1852" height="903" alt="Screenshot 2025-07-29 185022" src="https://github.com/user-attachments/assets/1c33b709-93b7-4a08-81d0-c7b58e537e81" />
+<img width="1853" height="505" alt="Screenshot 2025-07-30 175231" src="https://github.com/user-attachments/assets/1a0038ba-6100-4473-b3db-b90d596c6e27" />
+<img width="1852" height="918" alt="routing" src="https://github.com/user-attachments/assets/26d7286a-5e80-4040-8960-0c9006bc4a71" />
+<img width="1841" height="912" alt="Screenshot 2025-07-29 190229" src="https://github.com/user-attachments/assets/2e960fa2-3caf-4d39-99e6-bfb2747c5a95" />
+<img width="1748" height="890" alt="Screenshot 2025-07-29 190359" src="https://github.com/user-attachments/assets/d3cc2791-c395-4fb3-bd54-f2905c7f5c99" />
+<img width="1742" height="895" alt="Screenshot 2025-07-29 190416" src="https://github.com/user-attachments/assets/c8b8a5fd-7a7c-4a43-bdc7-a9378b4e07b9" />
+<img width="1688" height="880" alt="Screenshot 2025-07-29 190436" src="https://github.com/user-attachments/assets/db974f00-d023-45df-acfe-24e865549b76" />
+<img width="1853" height="915" alt="Screenshot 2025-07-29 194603" src="https://github.com/user-attachments/assets/c2643529-ff21-4734-a34a-dbd7a7ec5990" />
+
+*Post-Routing Analysis*
+<img width="1857" height="936" alt="Screenshot 2025-07-29 195516" src="https://github.com/user-attachments/assets/5d7777a5-7e44-4c99-a3c7-7ad856b9cfe1" />
+
+*Final Layout Generation (GDSII)*
+The final DEF and GDSII files represent the completed design, ready for the foundry.
+<img width="751" height="817" alt="Screenshot 2025-07-30 133612" src="https://github.com/user-attachments/assets/09ab689e-e161-4e35-a7cf-3023380250a4" />
+<img width="1055" height="857" alt="Screenshot 2025-07-29 224044" src="https://github.com/user-attachments/assets/ace98a9a-4742-4409-8a97-660841e75a81" />
