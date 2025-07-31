@@ -617,19 +617,21 @@ Final Result :
 #### Spice extraction of inverter in magic 
 
 - Clone vsdstdcelldesign. Copy the techfile ```sky130A.tech``` from ```pdks/sky130A/libs.tech/magic/``` to directory of the cloned repo. 
-  <img width="848" height="52" alt="Screenshot 2025-07-26 174607" src="https://github.com/user-attachments/assets/b185ee77-7baf-4d9d-a14e-8f3ce328d139" />
-  <img width="848" height="168" alt="Screenshot 2025-07-30 125827" src="https://github.com/user-attachments/assets/73cde73d-b8ce-40b6-b346-73d279bccbc6" />
+<img width="900" height="200" alt="Day 3 - Screenshot 154025" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-3/Screenshot%202025-07-31%20154025.png?raw=true" />
+
+<img width="850" height="160" alt="Day 3 - Screenshot 154038" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-3/Screenshot%202025-07-31%20154038.png?raw=true" />
+
 
 - View the mag file using magic ```magic -T sky130A.tech sky130_inv.mag &```
-  <img width="848" height="57" alt="Screenshot 2025-07-26 174719" src="https://github.com/user-attachments/assets/144921cd-5e35-4c8b-9918-89460b008333" />
-  
+<img width="880" height="300" alt="Day 3 - Screenshot 154353" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-3/Screenshot%202025-07-31%20154353.png?raw=true" />
+
 - Make an extract file ```.ext``` by typing extract all in the tkon terminal of magic. 
 
 - Extract the ```.spice``` file from this ext file by typing ```ext2spice cthresh 0 rthresh 0``` then ```ext2spice``` in the tkon terminal.
 
   <img width="848" height="260" alt="Screenshot 2025-07-26 174858" src="https://github.com/user-attachments/assets/76fb85c3-e007-4032-9925-8800b238c3e0" />
 
-  <img width="848" height="721" alt="Screenshot 2025-07-26 172928" src="https://github.com/user-attachments/assets/9d946e89-dce5-46dd-be89-e8f93b824935" />
+<img width="848" height="721" alt="Day 3 - Screenshot 154632" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-3/Screenshot%202025-07-31%20154632.png?raw=true" />
 
   
 #### Post-Layout Spice simulation (ngspice)
@@ -638,7 +640,8 @@ Final Result :
   
   <img width="848" height="875" alt="Screenshot 2025-07-26 181256" src="https://github.com/user-attachments/assets/6b11a52d-e7dd-4626-882e-e8d24f331810" />
 
-  <img width="848" height="487" alt="Screenshot 2025-07-26 181156" src="https://github.com/user-attachments/assets/fa7d1c08-da3b-4118-83f7-42ff78559790" />
+<img width="848" height="490" alt="Day 3 - Screenshot 155306" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-3/Screenshot%202025-07-31%20155306.png?raw=true" />
+
 
   
 #### Slew rate and Propagation delay 
