@@ -644,14 +644,38 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
 ## Lab 5 
 
-- Performing (PDN) Power Distribution Network
+## Power Distribution Network (PDN)
 
-  - In docker open openlane andd perform prepare the design and include newly added `lef` to openlane flow.
-  - set SYNTH_STRATEGY --> DELAY 3
-  - set SYNTH_SIZING --> 1
-  - run synthesis, floorplan, placement and finally cts
-  - after cts is done we do power distribution network PDN
-  - gen_pdn
+Power Distribution Network (PDN) is a crucial step in digital IC design. It ensures that power (VDD) and ground (VSS) are distributed uniformly across the entire chip with minimal voltage drop (IR drop) and high reliability. This becomes particularly important after the clock tree synthesis (CTS) stage, as the placement of clock buffers and registers increases the power demand in various regions of the design.
+
+---
+
+### Steps to Implement PDN in OpenLane
+
+- Launch the OpenLane environment inside Docker.
+- Prepare the design as usual by creating the configuration and ensuring your custom standard cell LEF (Library Exchange Format) is included correctly.
+- Update configuration variables:
+  - `SYNTH_STRATEGY` should be set to `DELAY 3` — this strategy optimizes the synthesized logic for timing, favoring delay optimization over area or power.
+  - `SYNTH_SIZING` should be set to `1` — enabling basic sizing of gates during synthesis to meet timing constraints.
+
+- Run the following stages in sequence:
+  - **Synthesis**: Generates gate-level netlist from RTL using the configured synthesis strategy.
+  - **Floorplan**: Defines the chip dimensions, core area, and block placements.
+  - **Placement**: Places all the standard cells within the defined core area.
+  - **CTS (Clock Tree Synthesis)**: Constructs a balanced clock tree to distribute the clock signal with minimal skew.
+
+---
+
+### Generating the Power Distribution Network
+
+Once CTS is complete, the next step is to generate the PDN grid.
+
+- Use the `gen_pdn` command inside OpenLane to create the power stripes and connections.
+- PDN typically utilizes higher metal layers (e.g., met4/met5/met6 in Sky130 PDK) for vertical and horizontal power routing to minimize resistance and avoid congestion with signal nets.
+- This network ensures that every cell gets connected to power and ground rails and that the voltage drop across the die remains within acceptable limits.
+
+The PDN generation is essential to make the design physically realizable and manufacturable with stable power delivery.
+
 
  <img width="848" height="490" alt="Screenshot 2025-08-01 214116" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-5/Screenshot%202025-08-01%20214116.png" />
 
@@ -713,7 +737,7 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
   
   
 
-**Final (Picorv32a.def)**
+**Final (Picorv32a.Def)**
 
 
 <img width="848" height="510" alt="Screenshot 2025-08-01 215103" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-5/Screenshot%202025-08-01%20215103.png" />
