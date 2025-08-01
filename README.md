@@ -39,7 +39,6 @@ OpenLane is a robust, open-source automation framework that transforms RTL desig
   - [Lab](#Lab-3)
     - [Spice extraction of inverter in magic](#Spice-extraction-of-inverter-in-magic)
     - [Post-Layout Spice simulation (ngspice)](#Post-Layout-Spice-simulation-(ngspice))
-    - [Slew rate and Propagation delay](#Slew-rate-and-Propagation-delay)
     - [Fix Tech File DRC via Magic](#Fix-Tech-File-DRC-via-Magic)
       
 - [DAY 4](#DAY-4)
@@ -215,94 +214,21 @@ In Order to fix negetive slack we change the clock period to ```55.00``` in ```s
 
 #### Floorplan
 
-- Determine Core and Die Dimensions
+The floorplanning process begins with determining the core and die dimensions, where the core is the central region where standard logic cells are placed. The size of the core depends on the standard cell dimensions present in the netlist, and its utilization factor—typically between 0.5 and 0.6—represents the ratio of the netlist area to the total core area, leaving enough space for routing and additional filler or buffer cells. Another important metric is the aspect ratio, calculated as height divided by width; an aspect ratio of 1 indicates a square-shaped core, which is often ideal for routing efficiency.
 
-  - The core is the central area where logic blocks are placed.
+Next, preplaced cells, which include complex and reusable IP blocks like memories or clock-gating cells, are defined by the user and fixed prior to the automated placement and routing steps. These cells cannot be moved by tools afterward. To ensure power integrity, decoupling capacitors are placed near preplaced cells to stabilize the local voltage supply, especially in the presence of long power lines where resistance and inductance can cause IR drop. These capacitors provide localized charge during fast switching events, keeping the voltage within acceptable noise margins.
 
-  - Width and height depend on standard cell dimensions in the netlist.
+However, decoupling capacitors alone are not enough for stable power delivery across the entire chip. To combat issues like ground bounce (from many cells switching to logic 0) and voltage droop (from simultaneous switching to logic 1), a robust power mesh is employed. This mesh distributes VDD and VSS taps uniformly across the chip to ensure consistent current flow and reduce voltage fluctuations.
 
-  - Utilization factor = (Area occupied by netlist) / (Total core area).
-
-  - Typically ranges between 0.5 to 0.6 (remaining space is for routing and additional cells).
-
-  - Aspect ratio = (Height / Width) of the core.
-
-  - An aspect ratio of 1 produces a square core.
-    <img width="848" height="367" alt="Screenshot 2025-07-24 223107" src="https://github.com/user-attachments/assets/92da74da-1a22-40b1-9b2e-09e5d11c03c7" />
-
-- Preplaced Cells (Macros/IPs)
-
-  - These are complex reusable blocks (e.g., memory, clock-gating cells, comparators).
-
-  - Their placement is user-defined and fixed before automated placement & routing.
-
-  - Automated tools cannot move preplaced cells after definition.
-    <img width="848" height="367" alt="Screenshot 2025-07-24 223127" src="https://github.com/user-attachments/assets/675fe99d-0725-4d39-ab18-e5d19f703447" />
-
-- Decoupling Capacitors
-
-  - Placed near preplaced cells to stabilize voltage supply.
-    
-    <img width="848" height="603" alt="Untitled" src="https://github.com/user-attachments/assets/c04cf8d8-f3de-49f7-bda0-91d5892b8fe5" />
-
-
-  - Reason: Long power supply wires cause voltage drop (IR drop) due to resistance/inductance.
-
-  - Solution: Decoupling capacitors provide localized current during switching, keeping voltage within noise margin.
-
-- Power Planning
-
-  - Decoupling capacitors alone are insufficient for full-chip power stability.
-
-  - Ground bounce: Excessive current sinking when many cells switch to '0'.
-
-  - Voltage droop: Insufficient current sourcing when many cells switch to '1'.
-
-  - Solution: Use a power mesh with multiple VDD/VSS taps across the chip for uniform current distribution.
-    <img width="848" height="371" alt="Screenshot 2025-07-24 222913" src="https://github.com/user-attachments/assets/4c943466-20cc-4e48-96ca-6c0bcdba10ab" />
-
-  
-
-- Pin Placement
-
-  - I/O ports are placed between the core and die boundary.
-
-  - Placement depends on connected cell locations in the core.
-
-  - Clock ports are thicker (low-resistance path) to ensure full-chip drive capability.
-
-  - Logical Cell Placement Blockage
-
-  - Ensures no cells are placed over die pin locations during automated placement/routing.
-
-  - Defined as blockage regions to prevent overlap.
-    <img width="848" height="355" alt="Screenshot 2025-07-24 222958" src="https://github.com/user-attachments/assets/aa9bb6ac-70b1-4a1e-a388-22b122db452f" />
-    <img width="848" height="347" alt="Screenshot 2025-07-24 223040" src="https://github.com/user-attachments/assets/0f4ab5a9-2147-4725-8bc1-e3412078ac7b" />
+Finally, pin placement is performed, where I/O ports are positioned between the core and the die boundary based on the location of the logic blocks they connect to. Clock pins are given wider tracks to reduce resistance and ensure reliable clock distribution across the design. Additionally, logical cell placement blockages are defined in areas around the pins to prevent standard cells from being placed over or too close to pin locations, which ensures successful routing and prevents congestion near the die edge.
 
 
 #### Placement
 
-- Netlist Binding
-  - Netlist binding is the process of mapping the logical representation of a digital design onto standard cell shapes from a library. Each component in the netlist is mapped to a specific shape defined in the       library.
+Placement in digital ASIC design begins with netlist binding, where the logical representation of a circuit is mapped to physical standard cell shapes from a library. Each gate, flip-flop, or logic element in the synthesized netlist is associated with a predefined layout view from the standard cell library. During the initial placement phase, these mapped cells are positioned within the core area of the chip, with key emphasis on proximity to I/O pins for minimizing signal delays. Critical signal paths, such as those between flip-flops (e.g., FF1 to FF2), are shortened by placing related components closer together, and buffer insertion may be used for better signal integrity. Wire-length and capacitance estimates further influence this phase to optimize for performance metrics like timing, power, and noise. Final placement optimization then refines this layout by considering real design constraints, still assuming an ideal clock, and aims to minimize path delays and power usage. At this point, the design has transitioned from logical mapping and floorplanning to a physical representation, with standard cell rows prepared and components now optimally placed for routing.
 
-- Initial Placement Design
-  In this phase, components from the netlist are placed within the chip's core area. Key considerations include:
 
-  - Proximity to Pins: Components are strategically placed based on their distance from input and output pins to minimize signal delays.
 
-  - Signal Optimization: Signals requiring rapid propagation, such as FF1 to FF2, are placed close together. Buffer cells may be added for signal integrity.
-
-  - Wire-Length and Capacitance Estimation: Wire length and capacitance estimates guide placement optimization, factoring in signal delay, power consumption, and integrity.
-
-- Final Placement Optimization
-  - The final placement phase fine-tunes the component layout within the chip, optimizing for performance. It assumes an ideal clock and aims to minimize signal delays, conserve power, and meet design                constraints.
-
-  - The next step in the Digital ASIC design flow after floorplanning is placement. The synthesized netlist has been mapped to standard cells and the floorplanning phase has determined the standard cells rows,       enabling placement.
-  
-  *OpenLane does placement in two stages:*
-
-  *Global Placement - Optimized but not legal placement. Optimization works to reduce wirelength by reducing half parameter wirelength
-  Detailed Placement - Legalizes placement of cells into standard cell rows while adhering to global placement*
 
 
 
@@ -366,60 +292,6 @@ In Order to fix negetive slack we change the clock period to ```55.00``` in ```s
   If we zoom, we the core with all the standard cells placed in between power can ground rail
 
 
-#### Library Characterization
-
-- Purpose:
-  
-  - Provides standard cells, macros, decaps for EDA tools.
-
-  - Cells come in different sizes, Vth, drive strengths.
-
-- Inputs (From Foundry PDK):
-  
-  ✔ DRC/LVS rules (manufacturability)
-  
-  ✔ SPICE models (transistor behavior)
-  
-  ✔ User specs (cell height, width, VDD, metal layers)
-
-- Cell Design Flow
-  
-  - Circuit Design → CDL netlist.
-
-  - Transistor Sizing → Meet speed/power needs.
-
-  - Layout → Stick diagram + Euler’s path (Magic tool).
-
-  - Outputs:
-
-    GDSII (layout)
-
-    LEF (dimensions, pins)
-
-    Extracted SPICE (parasitics)
-
-- Characterization (GUNA Tool):
-  
-  - Timing:
-
-    Slew (20%-80% rise/fall time).
-
-    Prop Delay (50% input → 50% output).
-
-    Power (leakage, dynamic).
-
-    Noise (crosstalk).
-
-- Key Notes:
-  
-    ⚠ Negative delay? → Fix threshold (use 50%).
-  
-   📌 Bigger cells = stronger drive but slower (higher Vth).
-
-  
-  <img width="848" height="603" alt="dadda" src="https://github.com/user-attachments/assets/a288d9cd-e1cc-4df1-bdf8-d5c77d97a7c4" />
-
-
 
 
 # Day 3
@@ -427,37 +299,7 @@ In Order to fix negetive slack we change the clock period to ```55.00``` in ```s
 
 #### Designing a Library Cell 
 
- **SPICE Deck for CMOS Inverter**  
-
-  - **Netlist** describing component connectivity.  
-  - **W/L** values:  
-    - `0.375u/0.25u` = Width=375nm, Length=250nm *(PMOS typically 2-3x wider than NMOS)*.  
-  - **Voltages**:  
-    - Gate supply (`Vin`): 2.5V *(scaled with length)*.  
-    - `Vdd`: 2.5V (PMOS source).  
-    - `0`: Ground (NMOS source).  
-  - **Capacitances**:  
-    - Load caps: `10ff` (attached to nodes).  
-  - **Nodes**:  
-    - Label connections (e.g., `Vin`, `Vdd`, `0`) for SPICE simulation.
-      
- **Description** : 
- 
- <img width="848" height="602" alt="Screenshot 2025-07-26 125422" src="https://github.com/user-attachments/assets/f647f49c-e4af-4a20-9eaf-dfa6f4d9f203" />
-
- ```
- Syntax for the PMOS and NMOS descriptiom:
- [component name] [drain] [gate] [source] [substrate] [transistor type] W=[width] L=[length]
- 
- All components are described based on nodes and its values
- .op is the start of SPICE simulation operation where Vin will be sweep from 0 to 2.5 with 0.5 steps
- tsmc_025um_model.mod is the model file containing the technological parameters for the 0.25um NMOS and PMOS The steps to simulate in SPICE:
- ```
-
- **Key Points**:  
-  - PMOS wider → balances current with NMOS.  
-  - Node naming essential for simulation.  
-  - Example: `M1` (PMOS) and `M2` (NMOS) form inverter.  
+  
 
   
   
@@ -470,146 +312,10 @@ In Order to fix negetive slack we change the clock period to ```55.00``` in ```s
   5. Display available vectors using display.
   6. Plot specific vectors, e.g., plot vout vs vin, to visualize the circuit behavior.
 
-*Vout vs Vin Plot :*
-
-<img width="848" height="656" alt="Screenshot 2025-07-26 125706" src="https://github.com/user-attachments/assets/4e34ffd1-4c48-4ab0-b0fd-cba749e4df5a" />
-
-  
-<img width="848" height="648" alt="Screenshot 2025-07-26 125749" src="https://github.com/user-attachments/assets/a225d17d-3e87-4ea4-a6d9-4e5caf95988f" />
-
-
-- From the above we can see that the switching threshold of the latter is exactly midway with reference to Vdd and is slightly shifted to the left with the former
-
-- At the Switching threshold pmos and nmos drain add up to zero. Using this condition and the Drain Current equation we can fix a value for W/L to obtain the required switching voltage
-
-- To obtain a symmetric DC plot, you can scale the aspect ratio of PMOS by 2.5 times
-
-#### SPICE Switching Threshold and Propagation Delay 
-
-- Switching threshold = Vin is equal to Vout. This the point where both PMOS and NMOS is in saturation or kind of turned on, and leakage current is high. 
-                      If PMOS is thicker than NMOS, the CMOS will have higher switching threshold (1.2V vs 1V) while threshold will be lower when NMOS becomes thicker.
-
-- Propagation delay = rise or fall delay
-
-
-```the line intersection is the switching threshold```
-
-<img width="848" height="541" alt="Screenshot 2025-07-26 135748" src="https://github.com/user-attachments/assets/d3abddf5-db6a-448f-952e-b885b8568468" />
-
-
-```transient analysis is used for finding propagation delay :```
-
-<img width="200" height="216" alt="Screenshot 2025-07-26 135659" src="https://github.com/user-attachments/assets/7ab2839f-d176-49b6-b1b5-30f36c04c5e2" />
-
-```
-Vin in 0 0 pulse 0 2.5 0 10p 10p 1n 2n 
-*** Simulation Command ***
-.op
-.tran 10p 4n
-```
-<img width="848" height="53" alt="Screenshot 2025-07-26 135650" src="https://github.com/user-attachments/assets/957730e3-5601-4bbc-a6d9-46503961e79a" />
-
-`starts at 0V`
-`ends at 2.5V`
-`starts at time 0`
-`rise time of 10ps`
-`fall time of 10ps`
-`pulse-width of 1ns`
-`period of 2ns`
-
-**SPICE transient analysis :**
-
-<img width="848" height="889" alt="187056370-18949899-a158-4307-96d9-d5c06bbeed66" src="https://github.com/user-attachments/assets/754e0757-5b33-494c-95ae-2a287599dc6d" />
 
 #### 16-Mask CMOS Process 
-*inverter*
+The 16-mask CMOS process for fabricating an *inverter* starts with selecting a `P-type Si wafer` (5–50 Ω·cm, ⟨100⟩ orientation), ensuring substrate doping is less than well doping. Active regions are isolated using the `LOCOS` technique: `Mask 1` patterns photoresist to protect transistor areas, with an `Si₃N₄` layer (~80nm) blocking oxidation and field oxide growing (~1µm) in exposed regions. `N-well` formation for PMOS uses `Mask 2` and a phosphorus implant @400 keV, while `P-well` formation for NMOS uses `Mask 3` with a boron implant @200 keV followed by drive-in diffusion. Threshold voltage is adjusted using `Mask 4/5` with boron (NMOS) and arsenic (PMOS) implants. A high-quality gate oxide (~10nm SiO₂) is grown, and `Mask 6` defines the poly-Si gate. Lightly Doped Drain (LDD) structures are formed to reduce short-channel effects: `Mask 7` and `Mask 8` introduce `N⁻` (Phosphorus for NMOS) and `P⁻` (Boron for PMOS) implants, with `SiO₂` sidewall spacers added via deposition and anisotropic etch. Source and drain formation uses `Mask 9` and `Mask 10` for `N⁺` (Arsenic) and `P⁺` (Boron) implants respectively, with a screen oxide to prevent channeling. Contacts and local interconnects are formed by sputtering Ti, followed by RTA at 600–700°C to form `TiSi₂` at gates and `TiN` for routing, then `Mask 11` defines first-layer contacts. Metallization involves PSG deposition, CMP, via etching (`Mask 12/14`), and metal deposition (`Mask 13/15`) with Aluminum or Tungsten, followed by `Mask 16` for top-layer contact opening. Key insights: `PMOS width > NMOS` (2–3×) for current drive matching, `LDD` and spacers mitigate leakage and hot-carrier effects, `TiSi₂` reduces gate resistance, and `TiN` improves local routing. The 16 masks span well doping, isolation, threshold control, gates, contacts, and interconnects.
 
-1. Substrate Selection
-   - P-type Si wafer (5–50 Ω·cm, ⟨100⟩ orientation).
-
-   - Key: Substrate doping < well doping.
-
-2. Active Region Isolation (LOCOS)
-   - Mask 1: Photoresist patterning to protect transistor regions.
-
-   - Layers:
-
-     - Si₃N₄ (80nm): Blocks SiO₂ growth.
-
-     - Field Oxide (LOCOS): Grows in unprotected areas (~1µm).
-
-   - Result: Isolated active regions for NMOS/PMOS.
-
-3. Well Formation
-   - N-well (PMOS):
-
-     - Mask 2: Protects NMOS region.
-
-     - Phosphorus implant @400 keV.
-
-   - P-well (NMOS):
-
-     - Mask 3: Protects PMOS region.
-
-     - Boron implant @200 keV.
-
-     - Drive-in diffusion to deepen wells.
-
-4. Gate Formation
-   - Threshold Voltage Control:
-
-     - Mask 4/5: Boron (NMOS) & Arsenic (PMOS) implants.
-
-     - Gate Oxide: Etch/regrow 10nm SiO₂ (high quality).
-
-     - Mask 6: Poly-Si gate patterning.
-
-5. Lightly Doped Drain (LDD)
-   - Purpose: Prevent hot-electron/short-channel effects.
-
-   - Mask 7: N⁻ implant (Phosphorus) for NMOS.
-
-   - Mask 8: P⁻ implant (Boron) for PMOS.
-
-   - Sidewall spacers: SiO₂ deposition + anisotropic etch.
-
-6. Source/Drain Formation
-   - Mask 9: N⁺ implant (Arsenic) for NMOS.
-
-   - Mask 10: P⁺ implant (Boron) for PMOS.
-
-   - Screen oxide prevents channeling.
-
-7. Contacts & Local Interconnects
-   - TiN/TiSi₂ Formation:
-
-     - Ti sputtering → RTA (600–700°C) → TiSi₂ (gates) + TiN (routing).
-
-   - Mask 11: Etch TiN for first-layer contacts.
-
-8. Metallization (Al/W)
-   - Planarization: PSG deposition + CMP.
-
-   - Contact Holes:
-
-     - Mask 12/14: Via etching.
-
-     - Mask 13/15: Aluminum/W deposition.
-
-   - Mask 16: Top-layer contact/pad opening.
-
-*Key Insights :*
-- PMOS Width > NMOS (2–3x) for current balancing.
-
-- LDD reduces leakage; Sidewall spacers protect LDD during S/D implants.
-
-- TiSi₂ lowers gate resistance; TiN aids local routing.
-
-- 16 masks cover wells, implants, gates, contacts, and metals.
-
-Final Result : 
-
-<img width="848" height="400" alt="Screenshot 2025-07-26 174207" src="https://github.com/user-attachments/assets/fa5ac8b5-675a-4151-a230-072c64d6137e" />
 
 
 ## Lab 3 
