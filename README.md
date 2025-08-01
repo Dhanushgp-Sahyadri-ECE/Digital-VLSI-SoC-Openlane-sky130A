@@ -557,30 +557,27 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
 - run floorplan
 
-  <img width="1847" height="1200" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/9c38515d-dcd4-43cb-93d8-db4e18e8d09e" />
-
-  we get error
-
-  <img width="1847" height="1200" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/2e5e7292-a69f-4646-9e8a-3f35f27d626a" />
-
   run these commands instead :
-
   ```
   init_floorplan
   place_io
   tap_decap_or
   ```
+<img width="890" height="498" alt="Screenshot 2025-08-01 143140" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20143140.png?raw=true" />
 
 - run placement and we obtain `DEF` file
   opening the file using magic by command --> `magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/magic/sky130A.tech lef read        ../../tmp/merged.lef def read picorv32a.placement.def &`
 
-  <img width="1832" height="245" alt="Screenshot 2025-07-30 124909" src="https://github.com/user-attachments/assets/cd4713c1-b98b-4fcd-b906-30b1b344b2a8" />
+  <img width="848" height="496" alt="Screenshot 2025-07-31 145850" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-07-31%20145850.png?raw=true" />
 
-  <img width="1438" height="740" alt="Screenshot 2025-07-30 125132" src="https://github.com/user-attachments/assets/db8a2104-c693-4c8c-ae57-b77b073c9139" />
 
-  <img width="1441" height="738" alt="Screenshot 2025-07-29 010515" src="https://github.com/user-attachments/assets/3d0ac85a-1153-45a3-aff5-97221c0888b9" />
+ <img width="848" height="498" alt="Screenshot 2025-08-01 143508" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20143508.png?raw=true" />
 
-  <img width="1505" height="782" alt="Screenshot 2025-07-29 010553" src="https://github.com/user-attachments/assets/9461a51c-4038-4e8f-ad4a-088adf6a8967" />
+
+ <img width="848" height="498" alt="Screenshot 2025-08-01 143705" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20143705.png?raw=true" />
+
+<img width="848" height="498" alt="Screenshot 2025-08-01 143614" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20143614.png?raw=true" />
+
 
 - Post-Synthesis timing analysis
 
