@@ -312,9 +312,27 @@ Placement in digital ASIC design begins with netlist binding, where the logical 
   5. Display available vectors using display.
   6. Plot specific vectors, e.g., plot vout vs vin, to visualize the circuit behavior.
 
+#### 16-Mask CMOS Process  
+*inverter*
 
-#### 16-Mask CMOS Process 
-The 16-mask CMOS process for fabricating an *inverter* starts with selecting a `P-type Si wafer` (5–50 Ω·cm, ⟨100⟩ orientation), ensuring substrate doping is less than well doping. Active regions are isolated using the `LOCOS` technique: `Mask 1` patterns photoresist to protect transistor areas, with an `Si₃N₄` layer (~80nm) blocking oxidation and field oxide growing (~1µm) in exposed regions. `N-well` formation for PMOS uses `Mask 2` and a phosphorus implant @400 keV, while `P-well` formation for NMOS uses `Mask 3` with a boron implant @200 keV followed by drive-in diffusion. Threshold voltage is adjusted using `Mask 4/5` with boron (NMOS) and arsenic (PMOS) implants. A high-quality gate oxide (~10nm SiO₂) is grown, and `Mask 6` defines the poly-Si gate. Lightly Doped Drain (LDD) structures are formed to reduce short-channel effects: `Mask 7` and `Mask 8` introduce `N⁻` (Phosphorus for NMOS) and `P⁻` (Boron for PMOS) implants, with `SiO₂` sidewall spacers added via deposition and anisotropic etch. Source and drain formation uses `Mask 9` and `Mask 10` for `N⁺` (Arsenic) and `P⁺` (Boron) implants respectively, with a screen oxide to prevent channeling. Contacts and local interconnects are formed by sputtering Ti, followed by RTA at 600–700°C to form `TiSi₂` at gates and `TiN` for routing, then `Mask 11` defines first-layer contacts. Metallization involves PSG deposition, CMP, via etching (`Mask 12/14`), and metal deposition (`Mask 13/15`) with Aluminum or Tungsten, followed by `Mask 16` for top-layer contact opening. Key insights: `PMOS width > NMOS` (2–3×) for current drive matching, `LDD` and spacers mitigate leakage and hot-carrier effects, `TiSi₂` reduces gate resistance, and `TiN` improves local routing. The 16 masks span well doping, isolation, threshold control, gates, contacts, and interconnects.
+The CMOS fabrication process begins with **substrate selection**, where a `P-type Si wafer` with resistivity between 5–50 Ω·cm and ⟨100⟩ orientation is chosen. It's essential that the substrate doping is less than the well doping to ensure proper well formation.  
+
+Next, in **active region isolation (LOCOS)**, `Mask 1` is used to define photoresist patterns that protect future transistor areas. A layer of `Si₃N₄` (~80nm) is deposited to block oxide growth, followed by the growth of field oxide (`LOCOS`) in exposed regions (~1µm), effectively isolating NMOS and PMOS active regions.  
+
+**Well formation** involves creating the `N-well` for PMOS using `Mask 2` to shield the NMOS area, with phosphorus implanted at `@400 keV`. Similarly, the `P-well` for NMOS is formed using `Mask 3` with boron implants at `@200 keV`, followed by drive-in diffusion to deepen the wells.  
+
+For **gate formation**, threshold voltages are controlled using `Mask 4/5` to implant boron in NMOS and arsenic in PMOS regions. A high-quality gate oxide is formed by etching and regrowing 10nm of `SiO₂`. `Mask 6` is then used to pattern the polysilicon (`Poly-Si`) gates.  
+
+In the **Lightly Doped Drain (LDD)** phase, `Mask 7` is used for `N⁻` (Phosphorus) implantation in NMOS and `Mask 8` for `P⁻` (Boron) implantation in PMOS. Sidewall spacers are formed using `SiO₂` deposition and anisotropic etching to shield LDD regions during further processing.  
+
+During **source/drain formation**, heavily doped regions are created using `Mask 9` for `N⁺` (Arsenic) in NMOS and `Mask 10` for `P⁺` (Boron) in PMOS. A screen oxide is added to prevent implant channeling.  
+
+For **contacts and local interconnects**, a titanium layer is sputtered and then subjected to Rapid Thermal Annealing (`600–700°C`) to form `TiSi₂` over gates and `TiN` for routing. `Mask 11` is used to etch and define the first contact layer.  
+
+Finally, in the **metallization (Al/W)** stage, planarization is achieved with PSG deposition and CMP. `Mask 12` and `Mask 14` are used for via etching, while `Mask 13` and `Mask 15` deposit Aluminum or Tungsten. `Mask 16` defines the top-level contact and pad openings.  
+
+**Key Insights:** PMOS devices are made wider than NMOS (`PMOS Width > NMOS`, typically 2–3×) to balance drive strength. The LDD structure reduces leakage and enhances reliability, with sidewall spacers offering implant protection. `TiSi₂` helps lower gate resistance, while `TiN` is useful for local routing. Overall, the process uses `16 masks` to define all critical structures including wells, implants, gates, contacts, and metal layers.
+
 
 
 
