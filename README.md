@@ -457,19 +457,19 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
 - Tracks.info used in routing stage (`/desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/openlane/sky130_fd_sc_hd`)
 
-  <img width="848" height="496" alt="Screenshot 2025-07-30 000535" src="https://github.com/user-attachments/assets/5b0f8ca6-d1d9-4205-afaa-3d4e0c39272e" />
+<img width="900" height="180" alt="Day 4 – Screenshot 163116" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-07-31%20163116.png?raw=true" />
 
-  <img width="848" height="490" alt="Screenshot 2025-07-30 000549" src="https://github.com/user-attachments/assets/bbf1a286-b4cd-44bf-a572-249b2c87fe0e" />
+<img width="900" height="180" alt="Day 4 – Screenshot 163319" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑07‑31%20163319.png?raw=true" />
 
-  <img width="848" height="417" alt="Screenshot 2025-07-30 113158" src="https://github.com/user-attachments/assets/b6e985f8-a29b-477c-806a-c1da7bda2ab1" />
+
 
   
 - Type the Command in tkcon window to set grid as tracks of locali layer
    ```grid 0.46um 0.34um 0.23um 0.17um```
+<img width="1000" height="350" alt="Day 4 – Screenshot 121144" 
+src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20121144.png?raw=true" />
+<img width="1000" height="300" alt="Day 4 – Screenshot 120846" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20120846.png?raw=true" />
 
-  <img width="848" height="848" alt="Screenshot 2025-07-28 121258" src="https://github.com/user-attachments/assets/cc10810e-5776-436d-a05d-44b4b84273b9" />
-
-  <img width="848" height="608" alt="Screenshot 2025-07-27 011229" src="https://github.com/user-attachments/assets/5c5bc380-b802-41c4-b1a4-0f610579fcf9" />
 
 - Two Things to verify : Pins lies on intersections and cell width is 3. We can make use of grids to identify cell width.
 
@@ -480,17 +480,17 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
   - save the inverter by your custom name save `sky130_vsdinv.mag`
     then type `lef write` in tkcon window. This will create files as shown below.
     
-    <img width="848" height="146" alt="Screenshot 2025-07-27 015605" src="https://github.com/user-attachments/assets/ae0c769f-27b8-4342-84ce-398afc2b430d" />
-    <img width="848" height="145" alt="Screenshot 2025-07-30 130455" src="https://github.com/user-attachments/assets/a75274fc-1505-4900-a4a6-2f0cd839281c" />
+   <img width="950" height="220" alt="Day 4 – Screenshot 120201" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20120201.png?raw=true" />
+
+
+
     
 
 - Pluging-in Custom Inverter Cell into Openlane
 
   - Copy the LEF file `sky130_vsdinv.lef` and `sky130_fd_sc_hd__*` from `openlane/vsdstdcelldesign/libs` to `picorv32a/src` directory.
- 
-    <img width="848" height="292" alt="Screenshot 2025-07-27 112459" src="https://github.com/user-attachments/assets/cd356fb9-25aa-4665-b87b-1e17dc3b5659" />
+ <img width="950" height="300" alt="Day 4 – Screenshot 122422" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20122422.png?raw=true" />
 
-    <img width="848" height="267" alt="Screenshot 2025-07-30 113419" src="https://github.com/user-attachments/assets/5022ddbe-00f2-4f35-babc-350cc474992e" />
 
  
   - add these commands into `config.tcl` in `Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a`
@@ -503,16 +503,18 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
     set ::env(EXTRA_LEFS) [glob $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/src/*.lef]
     ```
     
-    <img width="848" height="582" alt="Screenshot 2025-07-30 004441" src="https://github.com/user-attachments/assets/db94ac64-9f76-400c-83bc-161d92eb155d" />
+    <img width="950" height="300" alt="Day 4 – Screenshot 122915" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20122915.png?raw=true" />
+
 
   - Run docker and prepare the design picorv32a. You may make use of overwrite command : `prep -design picorv32a -tag <date> -overwrite`
  
-    <img width="848" height="902" alt="Screenshot 2025-07-30 131638" src="https://github.com/user-attachments/assets/516d4ac8-968c-4285-9784-cfb003c45fed" />
+   <img width="1000" height="240" alt="Day 4 – Screenshot 123734" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20123734.png?raw=true" />
+
 
 
   - setting lefs
+<img width="1000" height="300" alt="Day 4 – Screenshot 124236" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124236.png?raw=true" />
 
-    <img width="1697" height="892" alt="Screenshot 2025-07-30 132028" src="https://github.com/user-attachments/assets/647d1896-6a85-48f4-92e6-a4985aa4c76c" />
 
  
     ```
@@ -521,12 +523,10 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
     ```
     
   - running synthesis ```run_synthesis```
- 
-    <img width="848" height="481" alt="Screenshot 2025-07-28 130724" src="https://github.com/user-attachments/assets/bd6f4d92-62b0-427f-badd-2cc9968b03a4" />
- 
-    <img width="848" height="387" alt="Screenshot 2025-07-30 115338" src="https://github.com/user-attachments/assets/7a3485fb-6d89-40cc-84f6-17800e613640" />
- 
-    <img width="848" height="897" alt="Screenshot 2025-07-28 222817" src="https://github.com/user-attachments/assets/84f09731-1370-4d3c-b9c8-409273ba04f7" />
+ <img width="1000" height="300" alt="Day 4 – Screenshot 124418" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124418.png?raw=true" />
+
+<img width="900" height="250" alt="Day 4 – Screenshot 124443" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124443.png?raw=true" />
+
  
     we get to see --> chip area, wns (worst timing violation) and tns (total negative slack)
 
