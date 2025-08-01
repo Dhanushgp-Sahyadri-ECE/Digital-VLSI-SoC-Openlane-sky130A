@@ -457,18 +457,20 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
 - Tracks.info used in routing stage (`/desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/openlane/sky130_fd_sc_hd`)
 
-<img width="900" height="180" alt="Day 4 – Screenshot 163116" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-07-31%20163116.png?raw=true" />
+<img width="848" height="496" alt="Screenshot 2025-07-31 163116" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-07-31%20163116.png" />
 
-<img width="900" height="180" alt="Day 4 – Screenshot 163319" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑07‑31%20163319.png?raw=true" />
+<img width="848" height="500" alt="Screenshot 2025-07-31 163319" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-07-31%20163319.png" />
+
 
 
 
   
 - Type the Command in tkcon window to set grid as tracks of locali layer
    ```grid 0.46um 0.34um 0.23um 0.17um```
-<img width="1000" height="350" alt="Day 4 – Screenshot 121144" 
-src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20121144.png?raw=true" />
-<img width="1000" height="300" alt="Day 4 – Screenshot 120846" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20120846.png?raw=true" />
+<img width="848" height="530" alt="Screenshot 2025-08-01 121144" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20121144.png" />
+
+<img width="848" height="515" alt="Screenshot 2025-08-01 120846" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20120846.png" />
+
 
 
 - Two Things to verify : Pins lies on intersections and cell width is 3. We can make use of grids to identify cell width.
@@ -480,7 +482,7 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
   - save the inverter by your custom name save `sky130_vsdinv.mag`
     then type `lef write` in tkcon window. This will create files as shown below.
     
-   <img width="950" height="220" alt="Day 4 – Screenshot 120201" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20120201.png?raw=true" />
+  <img width="848" height="485" alt="Screenshot 2025-08-01 120201" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20120201.png" />
 
 
 
@@ -489,7 +491,8 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
 - Pluging-in Custom Inverter Cell into Openlane
 
   - Copy the LEF file `sky130_vsdinv.lef` and `sky130_fd_sc_hd__*` from `openlane/vsdstdcelldesign/libs` to `picorv32a/src` directory.
- <img width="950" height="300" alt="Day 4 – Screenshot 122422" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20122422.png?raw=true" />
+<img width="848" height="518" alt="Screenshot 2025-08-01 122422" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20122422.png" />
+
 
 
  
@@ -503,17 +506,20 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
     set ::env(EXTRA_LEFS) [glob $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/src/*.lef]
     ```
     
-    <img width="950" height="300" alt="Day 4 – Screenshot 122915" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20122915.png?raw=true" />
+<img width="848" height="505" alt="Screenshot 2025-08-01 122915" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20122915.png" />
+
+
 
 
   - Run docker and prepare the design picorv32a. You may make use of overwrite command : `prep -design picorv32a -tag <date> -overwrite`
- 
-   <img width="1000" height="240" alt="Day 4 – Screenshot 123734" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20123734.png?raw=true" />
+ <img width="848" height="520" alt="Screenshot 2025-08-01 123734" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20123734.png" />
+
 
 
 
   - setting lefs
-<img width="1000" height="300" alt="Day 4 – Screenshot 124236" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124236.png?raw=true" />
+<img width="848" height="498" alt="Screenshot 2025-08-01 124236" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20124236.png" />
+
 
 
  
@@ -522,18 +528,17 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
     add_lefs -src $lefs
     ```
     
-  - running synthesis ```run_synthesis```
- <img width="1000" height="300" alt="Day 4 – Screenshot 124418" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124418.png?raw=true" />
+  - running synthesis along chip area ```run_synthesis```
+ <img width="848" height="510" alt="Screenshot 2025-08-01 124418" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20124418.png" />
 
-<img width="900" height="250" alt="Day 4 – Screenshot 124443" src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openlane‑sky130A/blob/main/Day‑4/Screenshot%202025‑08‑01%20124443.png?raw=true" />
+<img width="848" height="495" alt="Screenshot 2025-08-01 124443" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20124443.png" />
+
 
  
     we get to see --> chip area, wns (worst timing violation) and tns (total negative slack)
 
     merged.lef in tmp directory with our custom inverter as macro
-    
-    <img width="848" height="497" alt="Screenshot 2025-07-28 134549" src="https://github.com/user-attachments/assets/c044a361-b554-41d6-a30f-f4d218789c12" />
-
+    <img width="848" height="510" alt="Screenshot 2025-08-01 124418" src="https://raw.githubusercontent.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/main/Day-4/Screenshot%202025-08-01%20124418.png" />
 
 - we change some variable to get better timing improvement. This results change in chip area.so we'll change some variables because Those timing values aren't          ideal.
 
@@ -551,8 +556,7 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
 
     echo $::env(SYNTH_DRIVING_CELL
     // check whether it's the proper cell or not
-
-    run_synthesis
+ run_synthesis
     
     ```
 
@@ -564,11 +568,11 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
 
 - run floorplan
 
-  <img width="1847" height="883" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/9c38515d-dcd4-43cb-93d8-db4e18e8d09e" />
+  <img width="1847" height="1200" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/9c38515d-dcd4-43cb-93d8-db4e18e8d09e" />
 
   we get error
 
-  <img width="1847" height="883" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/2e5e7292-a69f-4646-9e8a-3f35f27d626a" />
+  <img width="1847" height="1200" alt="Screenshot 2025-07-28 225444" src="https://github.com/user-attachments/assets/2e5e7292-a69f-4646-9e8a-3f35f27d626a" />
 
   run these commands instead :
 
@@ -589,11 +593,74 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
 
   <img width="1505" height="782" alt="Screenshot 2025-07-29 010553" src="https://github.com/user-attachments/assets/9461a51c-4038-4e8f-ad4a-088adf6a8967" />
 
+- Post-Synthesis timing analysis
 
+  Since we are having improved timing of 0 wn. so what we will do is we will do timing analysis on Synthesis that has lot of violations
+  - we gradually improve and reduce our slack by replacing cells with better one and to deliver improved delay.
+  This is **timing ECO fixes**
+
+  First we do is running the synthesis --> include newly added lef to openlane flow --> set ::env(SYNTH_SIZING) 1 --> set                ::env(SYNTH_MAX_FANOUT) 4 --> run_synthesis
+
+  <img width="1848" height="902" alt="Screenshot 2025-07-31 191742" src="https://github.com/user-attachments/assets/3d42043d-4758-4577-ae4b-c14846e44257" />
+  
+
+  Later in `cd Desktop/work/tools/openlane_working_dir/openlane` we write command `sta pre_sta.conf`
+
+  *sta pre_sta.conf*
+  <img width="1838" height="901" alt="Screenshot 2025-07-31 211105" src="https://github.com/user-attachments/assets/ee021675-c15d-46ad-b587-43b0a22ccf3f" />
+
+  *my_base.sdc*
+  <img width="1832" height="891" alt="Screenshot 2025-07-31 211155" src="https://github.com/user-attachments/assets/2c6e2506-2d8f-4049-ad3a-d95f4fafeec8" />
+
+  <img width="1433" height="756" alt="Screenshot 2025-07-31 191954" src="https://github.com/user-attachments/assets/0893743c-bb30-450a-9620-e1d8b62fa90b" />
+
+  <img width="1817" height="908" alt="Screenshot 2025-07-31 192011" src="https://github.com/user-attachments/assets/b17625a1-252e-4413-befd-2b22a3379632" />
+
+  Replacing some cells to reduce slack
+
+  <img width="1855" height="437" alt="Screenshot 2025-07-31 202908" src="https://github.com/user-attachments/assets/73c52399-6aae-4cce-bd09-1e93e5eadfda" />
+
+  report_net -connections _11672_ [we see the driver pins] 
+  <img width="1857" height="910" alt="Screenshot 2025-07-31 203237" src="https://github.com/user-attachments/assets/5f8240b5-57a3-4f99-84f6-3ab736b991f4" />
+
+  replace_cell _14510_ sky130_fd_sc_hd__or3_4 [we replace some cells with better suited ones for driving 4 fanouts]
+  <img width="1847" height="921" alt="Screenshot 2025-07-31 203516" src="https://github.com/user-attachments/assets/affa5a5a-3594-4d79-9f75-0cf3bf84f6e7" />
+
+  To check the report and see the changes in slack we use command : report_checks -fields {net cap slew input_pins} -digits 4
+
+  Slack reduced
+
+  <img width="1841" height="905" alt="Screenshot 2025-07-31 203603" src="https://github.com/user-attachments/assets/38e44c1a-927a-47ec-8eec-e10d63772ddc" />
+
+  report_checks -from _29052_ -to _30440_ -through _14510_
+  <img width="1842" height="912" alt="Screenshot 2025-07-31 204342" src="https://github.com/user-attachments/assets/747b907d-20f5-44fa-9665-31cadfd64629" />
+
+  <img width="1852" height="916" alt="Screenshot 2025-07-31 204533" src="https://github.com/user-attachments/assets/5e3f3cc8-b68e-4948-909c-57ace47adec3" />
+
+  report_net -connections _11668_
+  
+  replace_cell _14506_ sky130_fd_sc_hd__or4_4
+
+  <img width="1855" height="645" alt="Screenshot 2025-07-31 205421" src="https://github.com/user-attachments/assets/bb689f1d-315f-476a-8b97-14916f3b0c5e" />
+
+  Slack Reduced
+
+  <img width="1853" height="880" alt="Screenshot 2025-07-31 205436" src="https://github.com/user-attachments/assets/6610dbe3-72fb-4f44-ac34-efcfef1c67b7" />
+
+  Intially : -23.90
+  
+  now : -22.9860
+
+  <img width="397" height="667" alt="Screenshot 2025-07-31 212541" src="https://github.com/user-attachments/assets/e52a36e4-8a81-4ed7-bdac-31ecddd4e35e" />
+
+  - We have reduced around 0.914 ns of violation
+ 
+  - iterative process
 
 - Run CTS
-
-  run synthesis,floorplan,placement and then run cts (`run_cts`)
+  
+  - Here we proceed with earlier 0 violation design. we want to proceed with the clean design to further stage.
+  - run synthesis,floorplan,placement and then run cts (`run_cts`)
 
   <img width="1297" height="457" alt="Screenshot 2025-07-29 181220" src="https://github.com/user-attachments/assets/1cb63874-68e5-4fba-a84f-a27dcec9eb0b" />
 
@@ -727,7 +794,7 @@ src="https://github.com/Dhanushgp‑Sahyadri‑ECE/Digital‑VLSI‑SoC‑Openla
   ```
   cd Desktop/work/tools/SPEF_EXTRACTOR
   
-  python3 main.py /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/26-03_08-45/tmp/merged.lef                                     /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/26-03_08-45/results/routing/picorv32a.def
+  python3 main.py /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/<date>/tmp/merged.lef      /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/<date>/results/routing/picorv32a.def
   ```
   
 - Post-Route OpenSTA timing analysis
@@ -761,6 +828,14 @@ The GDSII file is generated in the `results/magic` directory
 **[DEF](https://teamvlsi.com/2020/08/def-file-in-vlsi-design-exchange.html)**
 
 **[GDSII](https://en.wikipedia.org/wiki/GDSII)**
+
+
+# Acknowledgements
+
+[Kunal Ghosh](https://github.com/kunalg123) – Founder, VLSI System Design Corp.
+
+[Nickson Jose](https://github.com/nickson-jose)– Developer & Contributor, Open Source Physical Design
+
 
 
 
