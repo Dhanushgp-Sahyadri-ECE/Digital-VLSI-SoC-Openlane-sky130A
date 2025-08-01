@@ -644,19 +644,6 @@ Final Result :
 
 
   
-#### Slew rate and Propagation delay 
-
-- Rise Transition ```output transition time from 20%(0.66V) to 80%(2.64V)``` : 0.03581ns
-  ```(2.156 - 2.12019)```
-  <img width="848" height="78" alt="Screenshot 2025-07-26 213748" src="https://github.com/user-attachments/assets/02b52e5c-fff7-4283-8258-e47d702eabac" />
-
-- Fall Transition ```output transition time from 80%(2.64V) to 20%(0.66V)``` : 0.5969ns
-  <img width="848" height="77" alt="Screenshot 2025-07-26 214030" src="https://github.com/user-attachments/assets/b9a32895-a01c-4740-9f63-48f32acf497e" />
-
-- Rise delay ```delay between 50%(1.65V) of input to 50%(1.65V) of output``` : 0.0303ns
-  <img width="848" height="72" alt="Screenshot 2025-07-26 214545" src="https://github.com/user-attachments/assets/158e2eaf-4f69-4fbd-82bb-5b2c5814962d" />
-
-- Fall Delay ```delay between 50%(1.65V) of input to 50%(1.65V) of output``` : 0.0483ns
 
 #### Fix Tech File DRC via Magic
 
