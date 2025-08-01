@@ -551,15 +551,9 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
     echo $::env(SYNTH_DRIVING_CELL
     // check whether it's the proper cell or not
- run_synthesis
     
-    ```
+ <img width="880" height="512" alt="Screenshot 2025-08-01 141231" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20141231.png?raw=true" />
 
-    <img width="848" height="921" alt="Screenshot 2025-07-28 223452" src="https://github.com/user-attachments/assets/354f77d9-484b-4fc9-82db-f98ba83e714f" />
-
-    <img width="848" height="905" alt="Screenshot 2025-07-28 225050" src="https://github.com/user-attachments/assets/8fd2aa54-a14f-4a08-9c63-2e0da79a209a" />
-
-    values area has increased and worst negative slack has become 0
 
 - run floorplan
 
