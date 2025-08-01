@@ -1,137 +1,59 @@
 
-## Physical Design using OpenLANE & Sky130 PDK
+## VSD SoC Design and Planning Workshop
 
-## 📘 Project Introduction
+## Project Introduction
 This repository provides a comprehensive walkthrough of the physical design flow, leveraging the OpenLane toolchain with the Sky130 open-source Process Design Kit (PDK). Developed as part of the Digital VLSI SoC Design and Planning Workshop by VLSI System Design Corporation, this project delivers hands-on experience in chip design, from initial Register Transfer Level (RTL) code to the final GDSII manufacturing file.
 
 OpenLane is a robust, open-source automation framework that transforms RTL designs into GDSII layouts. It integrates essential tools such as Yosys, OpenROAD, Magic, Netgen, Fault, and OpenPhySyn, ensuring efficient and automated generation of clean, manufacturable chip layouts without the need for manual intervention. The flow is specifically optimized for the Skywater 130nm PDK, making it ideal for developing both hard macros and complete chips.
 
 
+## Repository Structure
 
-## 📁 Repository Structure
+**Day 1:**  
+Includes an introduction to RISC-V, the RTL to GDSII flow, and the OpenLane tool overview. Lab work covers synthesis, slack analysis, and estimation of flip-flop ratio.
 
-- [DAY 1](#DAY-1)
-  - [Theory](#DAY-1)
-    - [Introduction to RISC-V](#Introduction-to-RISC-V)
-    - [Simplified RTL to GDSII Flow](#Simplified-RTL-to-GDSII-Flow)
-    - [OpenLane Flow](#OpenLane-Flow)
-  - [Lab](#Lab-1)
-    - [Synthesis](#Lab-1)
-    - [Estimation of Flip Flop Ratio](#Estimation-of-Flip-Flop-Ratio)
-    - [Slack](#Slack)
-      
-- [DAY 2](#Day-2)
-  - [Theory](#DAY-2)
-    - [Floorplan](#Floorplan)
-    - [Placement](#Placement)
-  - [Lab](#Lab-2)
-    - [Floorplan](#Floor-Plan)
-    - [Placement](#Place-Ment)
-    - [Characterization](#Library-Characterization)
-    - [Estimation of area of the die](#Estimation-of-area-of-the-die)
-      
-- [Day 3](#DAY-3)
-  - [Theory](#DAY-3)
-    - [Designing a Library Cell](#Designing-a-Library-Cell)
-    - [steps for simulation in ngspice](#Follow-these-steps-for-simulation-in-ngspice)
-    - [SPICE Switching Threshold and Propagation Delay](#SPICE-Switching-Threshold-and-Propagation-Delay)
-    - [16-Mask CMOS Process](#16-Mask-CMOS-Process)
-  - [Lab](#Lab-3)
-    - [Spice extraction of inverter in magic](#Spice-extraction-of-inverter-in-magic)
-    - [Post-Layout Spice simulation (ngspice)](#Post-Layout-Spice-simulation-(ngspice))
-    - [Fix Tech File DRC via Magic](#Fix-Tech-File-DRC-via-Magic)
-      
-- [DAY 4](#DAY-4)
-  - [Theory](#DAY-4)
-    - [Delay Table](#Delay-Table)
-    - [Timing Analysis (using Ideal Clocks)](#Timing-Analysis-(using-Ideal-Clocks))
-    - [Clock Tree Synthesis Stage](#Clock-Tree-Synthesis-Stage)
-  - [Lab](#Lab-4)
-    
-- [DAY 5](#DAY-5)
-  - [Lab](#Lab-5)
+**Day 2:**  
+Focuses on floorplanning and placement concepts. Labs include floorplanning, placement, area estimation, and library cell characterization using OpenLane.
+
+**Day 3:**  
+Covers theoretical aspects like library cell design, CMOS process, and SPICE-based analysis. Labs demonstrate layout creation, SPICE extraction in Magic, and post-layout simulation in ngspice.
+
+**Day 4:**  
+Explores timing analysis with ideal clocks, delay tables, and clock tree synthesis. The lab applies CTS techniques and verifies timing reports.
+
+**Day 5:**  
+Dedicated to lab experiments involving synthesis refinement, timing closure, and clock tree analysis.
+
+
   
 
 
-# DAY-1
-# Inception-of-Open-source-EDA,OpenLane-and-Sky130-PDK
+# DAY-1  
+## Inception of Open-Source EDA, OpenLane, and Sky130 PDK
 
-we explore the fundamental physical elements of an integrated circuit (IC) : 
-
-**Package, Chip, Pads, Core, Die, and IPs** : 
-- The QFN-48 (Quad Flat No-lead) package is a surface-mounted IC package with 48 pins used to connect the chip to the outside world.
-
-- Inside the package is the die, the actual silicon chip where transistors are fabricated.
-
-- The core is the functional part of the die where the logic (e.g., processor, memory) is implemented.
-
-- Surrounding the core are pads, which act as electrical contact points for interfacing signals from the core to the pins on the package.
-  
-- The chip as a whole includes the die, package, and connections.
-
-The core of the chip will contain two types of blocks:
-
-**Foundry IP Blocks** (e.g. ADC, DAC, PLL, and SRAM) = blocks which requires some amount of intelligent techniques to build which can only be designed by foundries.
-
-**Macro blocks** (e.g. RISC-V SOC and SPI) = pure digital logic blocks compared to IP's which might require some analog parts.
-
-<img width="848" height="853" alt="182751377-2810d388-21b0-4df1-b1d4-c72176d80d28" src="https://github.com/user-attachments/assets/d6c9f443-dc08-4587-972a-c46c9b927dad" />
+This session covers the foundational blocks of an Integrated Circuit (IC), including the chip, die, core, and interface elements. A QFN-48 package connects the silicon die to the outside world. The die contains the core—where actual logic (like processors or memory) resides—and is surrounded by pads that interface signals between the die and package pins. Foundry IPs like ADCs, DACs, and SRAM are pre-designed analog or mixed-signal blocks, while macro blocks like RISC-V SoCs and SPI interfaces are digital logic structures built on standard cells.
 
 ## Introduction to RISC-V
 
-- RISC-V stands for Reduced Instruction Set Computing – Version 5 and is designed with simplicity and modularity in mind.
+RISC-V is an open-source ISA (Instruction Set Architecture) known for its simplicity, modularity, and free-to-use model. It comprises a minimal base integer instruction set with optional extensions (like multiplication, atomic, or floating-point operations), making it flexible for educational and industrial use cases. Its open nature makes it ideal for customization, enabling hardware innovation without licensing barriers.
 
-- Unlike proprietary ISAs like ARM or x86, RISC-V is open, meaning anyone can implement or modify it freely.
+## RTL to GDSII Flow Overview
 
-- The architecture consists of a base integer set and optional extensions (e.g., for multiplication, atomic operations, floating point).
+The design journey starts with **synthesis**, which converts RTL code (e.g., Verilog) into a gate-level netlist using standard cells defined by the Sky130 PDK. This netlist undergoes logical and area optimizations.  
 
-- RISC-V is ideal for education, research, and industrial design due to its transparency and scalability.
+Next, in **floorplanning**, the physical structure of the chip is defined—setting the die size, core area, and macro placements. Power distribution is established using upper metal layers to minimize IR drops.  
 
-## Simplified RTL to GDSII Flow 
+**Placement** involves arranging cells inside the core area. Global placement estimates rough positions to reduce wirelength, while detailed placement ensures legal placement adhering to design rules.  
 
-*Synthesis*
+In **Clock Tree Synthesis (CTS)**, the clock signal is buffered and routed in a balanced manner to all flip-flops using structured trees like H-trees or X-trees, minimizing skew and jitter.  
 
-The Register Transfer Level (RTL) code, typically written in Verilog or VHDL, is translated into a gate-level netlist. This netlist is composed of logic gates and components from a pre-defined standard cell library. These cells have fixed sizes and electrical characteristics, provided by the Process Design Kit (PDK). During synthesis, optimizations such as constant propagation, logic simplification, and technology mapping are performed to ensure an area-efficient and logically equivalent design.
+**Routing** connects pins and nets across placed cells using defined metal layers. Global routing defines approximate paths; detailed routing finalizes exact wiring with vias and spacing rules compliant with the PDK’s six-layer metal stack.  
 
-*Floor Planning and Power Planning*
+**Verification before sign-off** ensures manufacturing viability. This includes DRC (Design Rule Check) for geometric constraints, LVS (Layout vs. Schematic) to confirm logical equivalence, and STA (Static Timing Analysis) to verify timing across all PVT corners.
 
-This step involves defining the physical layout of the chip, including the die area, core area, margins, and reserved regions for IP blocks or macros. Floorplanning also includes decisions on I/O pin placement and defining power domains.
-In power planning, a Power Distribution Network (PDN) is created to deliver clean power across the chip. The power rails and straps are usually placed on upper metal layers since they are thicker and have lower resistance, which helps reduce IR drop and ensures reliable power delivery.
+🔗 [GDSII file format](https://anysilicon.com/semipedia/gdsii/)  
+🔗 RTL to GDSII using [OpenLane](https://efabless.com/openlane)
 
-*Placement*
-
-Placement determines the exact physical location of standard cells within the defined floorplan. This process occurs in two phases:
-
-- Global Placement: Estimates optimal positions to reduce wirelength and congestion, but may not obey all design rules.
-
-- Detailed Placement: Adjusts the global result to ensure legal placement while minimizing additional wirelength or timing penalties.
-
-*Clock Tree Synthesis (CTS)*
-
-A clock tree is built to distribute the clock signal to all sequential elements (flip-flops) in the design. Since all flip-flops must receive the clock signal simultaneously to avoid timing violations like skew and jitter, structures such as H-trees or X-trees are used. CTS also buffers the clock signal and ensures balanced timing paths across different regions.
-
-*Routing*
-
-Routing connects the logically associated pins (nets) across the placed cells using horizontal and vertical metal layers defined in the PDK.
-
-- Global Routing identifies approximate routing paths.
-
-- Detailed Routing determines exact wiring with specific tracks, vias, and metal layers.
- 
-- The Sky130 PDK provides six metal layers, each with defined widths, spacings, pitches, and via rules to guide the router for legal and             manufacturable connections.
-
-*Verification Before Sign-off*
-
-Before the final design is ready for fabrication, several verification steps are required:
-
-- DRC (Design Rule Check): Ensures the physical layout complies with all foundry-imposed rules like minimum spacing, width, enclosure, etc.
-
-- LVS (Layout Versus Schematic): Compares the layout netlist against the schematic/netlist from the synthesis phase to confirm logical equivalence.
-
-- Timing Analysis: Static Timing Analysis (STA) verifies that all setup and hold time constraints are satisfied across all paths and corners         (process, voltage, temperature).
-The final Result is [GDSII file format.](https://anysilicon.com/semipedia/gdsii/)
-
-RTL to GDSII flow : [Openlane](https://efabless.com/openlane)
 
 ## OpenLane Flow
 
@@ -587,93 +509,105 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
   First we do is running the synthesis --> include newly added lef to openlane flow --> set ::env(SYNTH_SIZING) 1 --> set                ::env(SYNTH_MAX_FANOUT) 4 --> run_synthesis
 
-  <img width="1848" height="902" alt="Screenshot 2025-07-31 191742" src="https://github.com/user-attachments/assets/3d42043d-4758-4577-ae4b-c14846e44257" />
+  <img width="848" height="487" alt="Screenshot 2025-08-01 145003" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20145003.png?raw=true" />
+
   
 
   Later in `cd Desktop/work/tools/openlane_working_dir/openlane` we write command `sta pre_sta.conf`
 
-  *sta pre_sta.conf*
-  <img width="1838" height="901" alt="Screenshot 2025-07-31 211105" src="https://github.com/user-attachments/assets/ee021675-c15d-46ad-b587-43b0a22ccf3f" />
 
   *my_base.sdc*
-  <img width="1832" height="891" alt="Screenshot 2025-07-31 211155" src="https://github.com/user-attachments/assets/2c6e2506-2d8f-4049-ad3a-d95f4fafeec8" />
+  
+  <img width="848" height="487" alt="Screenshot 2025-08-01 145050" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20145050.png?raw=true" />
 
-  <img width="1433" height="756" alt="Screenshot 2025-07-31 191954" src="https://github.com/user-attachments/assets/0893743c-bb30-450a-9620-e1d8b62fa90b" />
 
-  <img width="1817" height="908" alt="Screenshot 2025-07-31 192011" src="https://github.com/user-attachments/assets/b17625a1-252e-4413-befd-2b22a3379632" />
+ <img width="848" height="486" alt="Screenshot 2025-08-01 153031" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153031.png?raw=true" />
+
 
   Replacing some cells to reduce slack
 
-  <img width="1855" height="437" alt="Screenshot 2025-07-31 202908" src="https://github.com/user-attachments/assets/73c52399-6aae-4cce-bd09-1e93e5eadfda" />
+<img width="848" height="486" alt="Screenshot 2025-08-01 153208" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153208.png?raw=true" />
+
 
   report_net -connections _11672_ [we see the driver pins] 
-  <img width="1857" height="910" alt="Screenshot 2025-07-31 203237" src="https://github.com/user-attachments/assets/5f8240b5-57a3-4f99-84f6-3ab736b991f4" />
+  
+ <img width="848" height="486" alt="Screenshot 2025-08-01 153233" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153233.png?raw=true" />
+
 
   replace_cell _14510_ sky130_fd_sc_hd__or3_4 [we replace some cells with better suited ones for driving 4 fanouts]
-  <img width="1847" height="921" alt="Screenshot 2025-07-31 203516" src="https://github.com/user-attachments/assets/affa5a5a-3594-4d79-9f75-0cf3bf84f6e7" />
+  
+ <img width="848" height="486" alt="Screenshot 2025-08-01 153314" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153314.png?raw=true" />
+
 
   To check the report and see the changes in slack we use command : report_checks -fields {net cap slew input_pins} -digits 4
-
   Slack reduced
+  
+<img width="848" height="487" alt="Screenshot 2025-08-01 153424" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153424.png?raw=true" />
 
-  <img width="1841" height="905" alt="Screenshot 2025-07-31 203603" src="https://github.com/user-attachments/assets/38e44c1a-927a-47ec-8eec-e10d63772ddc" />
 
   report_checks -from _29052_ -to _30440_ -through _14510_
-  <img width="1842" height="912" alt="Screenshot 2025-07-31 204342" src="https://github.com/user-attachments/assets/747b907d-20f5-44fa-9665-31cadfd64629" />
+  
+<img width="848" height="487" alt="Screenshot 2025-08-01 153448" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153448.png?raw=true" />
 
-  <img width="1852" height="916" alt="Screenshot 2025-07-31 204533" src="https://github.com/user-attachments/assets/5e3f3cc8-b68e-4948-909c-57ace47adec3" />
+
+<img width="848" height="487" alt="Screenshot 2025-08-01 153511" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153511.png?raw=true" />
+
 
   report_net -connections _11668_
   
   replace_cell _14506_ sky130_fd_sc_hd__or4_4
+<img width="848" height="487" alt="Screenshot 2025-08-01 153546" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153546.png?raw=true" />
 
-  <img width="1855" height="645" alt="Screenshot 2025-07-31 205421" src="https://github.com/user-attachments/assets/bb689f1d-315f-476a-8b97-14916f3b0c5e" />
 
   Slack Reduced
+  
+<img width="848" height="487" alt="Screenshot 2025-08-01 153608" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153608.png?raw=true" />
 
-  <img width="1853" height="880" alt="Screenshot 2025-07-31 205436" src="https://github.com/user-attachments/assets/6610dbe3-72fb-4f44-ac34-efcfef1c67b7" />
 
   Intially : -23.90
-  
   now : -22.9860
-
-  <img width="397" height="667" alt="Screenshot 2025-07-31 212541" src="https://github.com/user-attachments/assets/e52a36e4-8a81-4ed7-bdac-31ecddd4e35e" />
-
-  - We have reduced around 0.914 ns of violation
+  reduced around 0.914 ns of violation
  
-  - iterative process
 
 - Run CTS
   
   - Here we proceed with earlier 0 violation design. we want to proceed with the clean design to further stage.
   - run synthesis,floorplan,placement and then run cts (`run_cts`)
 
-  <img width="1297" height="457" alt="Screenshot 2025-07-29 181220" src="https://github.com/user-attachments/assets/1cb63874-68e5-4fba-a84f-a27dcec9eb0b" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 153722" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153722.png?raw=true" />
 
-  <img width="1847" height="272" alt="Screenshot 2025-07-29 181247" src="https://github.com/user-attachments/assets/7573ef66-934f-45e7-8193-366e2c699ff4" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 153910" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153910.png?raw=true" />
+
+
   
 
 - Post-CTS Timing analysis : OpenROAD
 
   command : `openroad`
+  
+<img width="848" height="487" alt="Screenshot 2025-08-01 153947" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20153947.png?raw=true" />
 
-  <img width="1257" height="480" alt="Screenshot 2025-07-29 181627" src="https://github.com/user-attachments/assets/4123c22c-b05e-457c-a5f0-804acaad7fc8" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 154014" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154014.png?raw=true" />
 
-  <img width="1841" height="620" alt="Screenshot 2025-07-29 181808" src="https://github.com/user-attachments/assets/7d40a9ad-701b-4e1f-8449-5c060cdf403c" />
 
-  <img width="1847" height="908" alt="Screenshot 2025-07-29 181832" src="https://github.com/user-attachments/assets/2f8ed163-c532-491e-906b-cad0c448fc34" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 154032" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154032.png?raw=true" />
 
-  <img width="1830" height="878" alt="Screenshot 2025-07-29 181916" src="https://github.com/user-attachments/assets/1e754cbe-4c97-479c-bcce-e9beb3ce3154" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 154052" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154052.png?raw=true" />
+
 
   removing 'sky130_fd_sc_hd__clkbuf_1 and running CTS again 
-
-  <img width="1852" height="907" alt="Screenshot 2025-07-29 182340" src="https://github.com/user-attachments/assets/e4d7ed6d-9bc7-4d7a-975e-4a574397192c" />
-
-  <img width="1518" height="655" alt="Screenshot 2025-07-30 222049" src="https://github.com/user-attachments/assets/3a085a95-c2b1-493c-8b05-0ca7bbe19744" />
   
-  echo $::env(CTS_CLK_BUFFER_LIST) [Checking current value of CTS_CLK_BUFFER_LIST]
+<img width="848" height="487" alt="Screenshot 2025-08-01 154212" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154212.png?raw=true" />
 
-  <img width="1518" height="655" alt="Screenshot 2025-07-30 222049" src="https://github.com/user-attachments/assets/3a085a95-c2b1-493c-8b05-0ca7bbe19744" />
+
+<img width="848" height="487" alt="Screenshot 2025-08-01 154254" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154254.png?raw=true" />
+
+
+  echo $::env(CTS_CLK_BUFFER_LIST) [Checking current value of CTS_CLK_BUFFER_LIST]
+  
+  <img width="848" height="487" alt="Screenshot 2025-08-01 154321" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154321.png?raw=true" />
+
+
 
   running openROAD command again
   
@@ -705,13 +639,16 @@ In the clock tree synthesis (CTS) stage, three main objectives guide the process
 
   report_clock_skew -setup
   ```
-  
-  <img width="1848" height="916" alt="Screenshot 2025-07-29 183123" src="https://github.com/user-attachments/assets/d270f744-9aec-439a-b537-3e5fb5a04a9a" />
 
-  <img width="1337" height="740" alt="Screenshot 2025-07-30 220638" src="https://github.com/user-attachments/assets/f89677be-3220-45dc-8868-1bde680a25e1" />
+<img width="848" height="487" alt="Screenshot 2025-08-01 154355" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154355.png?raw=true" />
+
+<img width="848" height="487" alt="Screenshot 2025-08-01 154413" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154413.png?raw=true" />
+
 
   Checking clock skew for setup and hold
-  <img width="1852" height="945" alt="Screenshot 2025-07-29 183410" src="https://github.com/user-attachments/assets/5b3b741f-fc9e-40d4-9720-3ff3ae5cf279" />
+  
+  <img width="848" height="487" alt="Screenshot 2025-08-01 154439" src="https://github.com/Dhanushgp-Sahyadri-ECE/Digital-VLSI-SoC-Openlane-sky130A/blob/main/Day-4/Screenshot%202025-08-01%20154439.png?raw=true" />
+
 
 
 
